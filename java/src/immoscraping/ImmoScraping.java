@@ -14,23 +14,22 @@ import java.util.regex.Pattern;
 
 public class ImmoScraping {
 
-	public static void main(String[] args) throws ParseException, InterruptedException, ClassNotFoundException, IOException {
+	public static void main(String[] args)
+			throws ParseException, InterruptedException, ClassNotFoundException, IOException {
 
-		//  If no argument, print help
-		if(args.length == 0) {
+		// If no argument, print help
+		if (args.length == 0) {
 			printHelp();
 			return;
 		}
 
 		ImmoScraping immoScraping = new ImmoScraping();
-		immoScraping.run(args);	
+		immoScraping.run(args);
 	}
-
 
 	private void run(String[] args) throws ParseException, InterruptedException, ClassNotFoundException, IOException {
 
-
-		switch(args[0]) {
+		switch (args[0]) {
 		case "reset":
 			resetDatabase(args);
 			break;
@@ -46,38 +45,39 @@ public class ImmoScraping {
 
 	}
 
-
 	/**
 	 * Runs a scraping on the internet.
+	 * 
 	 * @param args
-	 * @throws ParseException 
-	 * @throws InterruptedException 
-	 * @throws IOException 
-	 * @throws ClassNotFoundException 
+	 * @throws ParseException
+	 * @throws InterruptedException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
 	 */
-	private void verifyAndScrape(String[] args) throws ParseException, InterruptedException, ClassNotFoundException, IOException {
+	private void verifyAndScrape(String[] args)
+			throws ParseException, InterruptedException, ClassNotFoundException, IOException {
 
 		String mail = "";
 		Date sinceDate = new Date(0);
 
 		int iArg = 1;
-		while(iArg < args.length) {
+		while (iArg < args.length) {
 
-			switch(args[iArg]) {
+			switch (args[iArg]) {
 
 			// Website to scrape is specified
 			case "--website":
 				System.out.println("Leboncoin is the only site yet. Option invalid. Returning.");
 				return;
 
-				// The date since last scraping is specified
+			// The date since last scraping is specified
 			case "--since":
-				if(iArg + 1 >= args.length) {
+				if (iArg + 1 >= args.length) {
 					printHelp();
 					return;
 				}
 				String since = args[iArg + 1];
-				if(!Pattern.matches("[0-9]{2}-[0-9]{2}-[0-9]{4} [0-9]{2}:[0-9]{2}", since)){
+				if (!Pattern.matches("[0-9]{2}-[0-9]{2}-[0-9]{4} [0-9]{2}:[0-9]{2}", since)) {
 					printHelp();
 					return;
 				}
@@ -86,14 +86,14 @@ public class ImmoScraping {
 				iArg += 2;
 				break;
 
-				// The mail to send updates is specified
+			// The mail to send updates is specified
 			case "--email":
-				if(iArg + 1 >= args.length) {
+				if (iArg + 1 >= args.length) {
 					printHelp();
 					return;
 				}
 				mail = args[iArg + 1];
-				if(!Pattern.matches(".*@.*\\..*", mail)){
+				if (!Pattern.matches(".*@.*\\..*", mail)) {
 					printHelp();
 					return;
 				}
@@ -105,14 +105,14 @@ public class ImmoScraping {
 				return;
 			}
 
-
 		}
 
 		runScraping(mail, sinceDate);
 
 	}
 
-	private void runScraping(String mail, Date sinceDate) throws InterruptedException, ClassNotFoundException, IOException {
+	private void runScraping(String mail, Date sinceDate)
+			throws InterruptedException, ClassNotFoundException, IOException {
 
 		// Load database from the autosave
 		loadDatabase();
@@ -120,7 +120,7 @@ public class ImmoScraping {
 		webScraper.start();
 
 		// Save database periodically in case the program crashes
-		while(webScraper.isAlive()) {
+		while (webScraper.isAlive()) {
 			Thread.sleep(AUTO_SAVE_PERIOD);
 			System.out.println("Saving database");
 			saveDatabase();
@@ -133,7 +133,7 @@ public class ImmoScraping {
 		saveDatabase();
 
 		// Notify me by email
-		if(!mail.equals("")) {
+		if (!mail.equals("")) {
 			notifier.notify(mail, database);
 		}
 
@@ -141,7 +141,7 @@ public class ImmoScraping {
 
 	private void loadDatabase() throws IOException, ClassNotFoundException {
 		File f = new File(DATABASE_SAVE_FILEPATH);
-		if(f.exists()) {
+		if (f.exists()) {
 			FileInputStream fin = new FileInputStream(DATABASE_SAVE_FILEPATH);
 			ObjectInputStream oos = new ObjectInputStream(fin);
 			database = (Database) oos.readObject();
@@ -149,7 +149,6 @@ public class ImmoScraping {
 			fin.close();
 		}
 	}
-
 
 	private void saveDatabase() throws IOException {
 		File f = new File(DATABASE_SAVE_FILEPATH);
@@ -161,32 +160,30 @@ public class ImmoScraping {
 		fout.close();
 	}
 
-
 	private void verifyAndExportDataBase(String[] args) {
 
 		String filename = DEFAULT_FILENAME;
-		
-		int iArg = 1;
-		while(iArg < args.length) {
 
-			switch(args[iArg]) {
+		int iArg = 1;
+		while (iArg < args.length) {
+
+			switch (args[iArg]) {
 
 			// filename
 			case "--filename":
 				String reqFilename = args[iArg + 1];
-				if(!Pattern.matches(".*\\.csv", reqFilename)){
+				if (!Pattern.matches(".*\\.csv", reqFilename)) {
 					printHelp();
 					return;
 				}
-				filename = Paths.get(DATA_PATH,reqFilename).toString();
+				filename = Paths.get(DATA_PATH, reqFilename).toString();
 				iArg += 2;
 				break;
-				
+
 			default:
 				printHelp();
 				return;
 			}
-
 
 		}
 
@@ -203,9 +200,9 @@ public class ImmoScraping {
 		database.export(filename);
 	}
 
-
 	/**
 	 * Removes the saved database
+	 * 
 	 * @param args
 	 */
 	private static void resetDatabase(String[] args) {
@@ -217,7 +214,7 @@ public class ImmoScraping {
 		System.out.println("HELP MSG TODO");
 	}
 
-	private final static String DATA_PATH = "/home/anatole/Desktop/Immo-Scraping/java/data";
+	private final static String DATA_PATH = "/home/anatole/Documents/Code/Immo-Scraping/java/data";
 	private final static String DATABASE_SAVE_FILEPATH = Paths.get(DATA_PATH, "database.db").toString();
 	private static final String DEFAULT_FILENAME = Paths.get(DATA_PATH, "database.xls").toString();
 	private final static long MINUTES = 60 * 1000;
@@ -225,6 +222,5 @@ public class ImmoScraping {
 	private Database database = new Database();
 	private WebScraper webScraper;
 	private Notifier notifier;
-
 
 }

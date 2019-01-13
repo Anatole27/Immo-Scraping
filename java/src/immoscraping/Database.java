@@ -9,12 +9,10 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 
 // TODO Thread safety
 public class Database implements Serializable {
@@ -29,11 +27,12 @@ public class Database implements Serializable {
 
 	/**
 	 * Add the advertisement if it is unique
+	 * 
 	 * @param ad
 	 */
 	public void add(Ad ad) {
-		for(int i = 0; i < ads.size(); i++) {
-			if(ad.url.equals(ads.get(i).url)){
+		for (int i = 0; i < ads.size(); i++) {
+			if (ad.url.equals(ads.get(i).url)) {
 				return;
 			}
 		}
@@ -41,7 +40,7 @@ public class Database implements Serializable {
 	}
 
 	public void process() throws IOException {
-		for(Ad ad : ads) {
+		for (Ad ad : ads) {
 			// Get travel distance
 			ad.travelTime = getDistance(ad.latLon);
 
@@ -51,29 +50,27 @@ public class Database implements Serializable {
 	}
 
 	private static final String MAPS_URL = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=%f,%f&destinations=%f,%f&mode=bicycling&language=en-EN&sensor=false&key=%s";
-	private static final double[] workLatLon = {43.563459, 1.496918};
-	private static final String apiKeyFilepath = "/home/anatole/Desktop/Immo-Scraping/googlemapsapi/key";
+	private static final double[] workLatLon = { 43.563459, 1.496918 };
+	private static final String apiKeyFilepath = "/home/anatole/Documents/Code/Immo-Scraping/googlemapsapi/key";
 	private static final String LAT_REGEX = "(?<=\"value\" : )[0-9]*";
 
 	private double getDistance(double[] latLon) throws IOException {
 
 		// Look if lat/long are already known
 		int i = 0;
-		for(double[] latLonDatabase : latLongList) {
-			if(latLonDatabase[0] == latLon[0] && latLonDatabase[1] == latLon[1]) {
+		for (double[] latLonDatabase : latLongList) {
+			if (latLonDatabase[0] == latLon[0] && latLonDatabase[1] == latLon[1]) {
 				return travelDistanceList.get(i);
 			}
 			i++;
 		}
 
 		// Lat long not know: ask google maps
-		BufferedReader br = new BufferedReader(new FileReader(apiKeyFilepath)); 
+		BufferedReader br = new BufferedReader(new FileReader(apiKeyFilepath));
 		String apiKey = br.readLine();
 		br.close();
-		URL googleApiUrl = new URL(String.format(MAPS_URL, latLon[0], latLon[1], 
-				workLatLon[0], workLatLon[1], apiKey));
-		BufferedReader in = new BufferedReader(
-				new InputStreamReader(googleApiUrl.openStream()));
+		URL googleApiUrl = new URL(String.format(MAPS_URL, latLon[0], latLon[1], workLatLon[0], workLatLon[1], apiKey));
+		BufferedReader in = new BufferedReader(new InputStreamReader(googleApiUrl.openStream()));
 
 		String inputLine;
 		String sourceCode = "";
@@ -85,11 +82,10 @@ public class Database implements Serializable {
 		Pattern pattern = Pattern.compile(LAT_REGEX);
 		Matcher matcher = pattern.matcher(sourceCode);
 		double travelTime;
-		if(matcher.find() && matcher.find()) {
+		if (matcher.find() && matcher.find()) {
 			travelTime = Double.parseDouble(matcher.group());
-		}
-		else {
-			System.err.printf("Distance to travel not found for lat/lon %f/%f\n",latLon[0],latLon[1]);
+		} else {
+			System.err.printf("Distance to travel not found for lat/lon %f/%f\n", latLon[0], latLon[1]);
 			travelTime = 0;
 		}
 
@@ -100,18 +96,17 @@ public class Database implements Serializable {
 		return travelTime;
 	}
 
-	private static final String[] PRO_STRING = {"référence annonce",
-			"honoraires",
-	"à la charge"};
+	private static final String[] PRO_STRING = { "référence annonce", "honoraires", "à la charge" };
 
 	/**
 	 * Return true of some words lead to think it is a pro ad
+	 * 
 	 * @param description
 	 * @return
 	 */
 	private boolean getIsPro(String description) {
-		for(String proString : PRO_STRING) {
-			if(description.toLowerCase().contains(proString)) {
+		for (String proString : PRO_STRING) {
+			if (description.toLowerCase().contains(proString)) {
 				return true;
 			}
 		}
@@ -120,15 +115,15 @@ public class Database implements Serializable {
 	}
 
 	public void export(String filename) {
-		 File f = new File(filename);
-		 f.getParentFile().mkdirs();
-		 PrintWriter writer = null;
+		File f = new File(filename);
+		f.getParentFile().mkdirs();
+		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(f.getAbsolutePath(), "UTF-8");
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		
+
 		// Print header
 		writer.print("url");
 		writer.print(";");
@@ -148,9 +143,9 @@ public class Database implements Serializable {
 //		writer.print(";");
 //		writer.print("description");
 		writer.println("");
-		
+
 		// Print ads
-		for(Ad ad : ads) {
+		for (Ad ad : ads) {
 			writer.print(ad.url);
 			writer.print(";");
 			writer.print(ad.surface);
@@ -170,6 +165,6 @@ public class Database implements Serializable {
 //			writer.print("\"" + ad.description + "\"");
 			writer.println("");
 		}
-		 writer.close();
+		writer.close();
 	}
 }

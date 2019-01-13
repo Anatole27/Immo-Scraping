@@ -17,19 +17,19 @@ class TestImmoScraping {
 
 	@Test
 	void testScrape() throws ParseException, InterruptedException, ClassNotFoundException, IOException {
-		ImmoScraping.main(new String[] {"scrape", "--email", "allo@test.fd", "--since", "20-11-2017 18:00"});
+		ImmoScraping.main(new String[] { "scrape", "--email", "allo@test.fd", "--since", "13-01-2019 23:00" });
 //		fail("Not yet implemented");
 	}
-	
+
 	@Test
 	void testCompleteScrape() throws ParseException, InterruptedException, ClassNotFoundException, IOException {
-		ImmoScraping.main(new String[] {"scrape", "--email", "allo@test.fd", "--since", "09-12-2017 12:00"});
+		ImmoScraping.main(new String[] { "scrape", "--email", "allo@test.fd", "--since", "16-11-2018 12:00" });
 //		fail("Not yet implemented");
 	}
-	
+
 	@Test
 	void testExport() throws ParseException, InterruptedException, ClassNotFoundException, IOException {
-		ImmoScraping.main(new String[] {"export", "--filename", "data.csv"});
+		ImmoScraping.main(new String[] { "export", "--filename", "data.csv" });
 //		fail("Not yet implemented");
 	}
 
