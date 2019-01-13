@@ -12,7 +12,7 @@ import googlemapsapi
 def getDistanceBoulot(orig_lat, orig_lng):
     orig_coord = orig_lat, orig_lng
     dest_coord = 43.563459, 1.496918
-#     url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins={0}&destinations={1}&mode=bicycling&language=en-EN&sensor=false&key=AIzaSyDUoQ_XaZBeK9-kHSUnm1QZ_G_BoXE_jlw".format(str(orig_coord),str(dest_coord))
+
 #     url = "http://avi.im/stuff/js-or-no-js.html"
     # Requires API key 
     gmaps = googlemaps.Client(key=googlemapsapi.getKey()) 
