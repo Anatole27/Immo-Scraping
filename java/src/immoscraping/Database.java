@@ -140,6 +140,10 @@ public class Database implements Serializable {
 		writer.print("energyGrade");
 		writer.print(";");
 		writer.print("gesGrade");
+		writer.print(";");
+		writer.print("latitude");
+		writer.print(";");
+		writer.print("longitude");
 //		writer.print(";");
 //		writer.print("description");
 		writer.println("");
@@ -161,6 +165,10 @@ public class Database implements Serializable {
 			writer.print(ad.energyGrade);
 			writer.print(";");
 			writer.print(ad.gesGrade);
+			writer.print(";");
+			writer.print(ad.latLon[0]);
+			writer.print(";");
+			writer.print(ad.latLon[1]);
 //			writer.print(";");
 //			writer.print("\"" + ad.description + "\"");
 			writer.println("");

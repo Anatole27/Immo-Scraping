@@ -176,7 +176,7 @@ public class ImmoScraping {
 					printHelp();
 					return;
 				}
-				filename = Paths.get(DATA_PATH, reqFilename).toString();
+				filename = Paths.get(OUT_PATH, reqFilename).toString();
 				iArg += 2;
 				break;
 
@@ -215,8 +215,9 @@ public class ImmoScraping {
 	}
 
 	private final static String DATA_PATH = "/home/anatole/Documents/Code/Immo-Scraping/java/data";
+	private final static String OUT_PATH = "/home/anatole/Documents/Code/Immo-Scraping/java/out";
 	private final static String DATABASE_SAVE_FILEPATH = Paths.get(DATA_PATH, "database.db").toString();
-	private static final String DEFAULT_FILENAME = Paths.get(DATA_PATH, "database.xls").toString();
+	private static final String DEFAULT_FILENAME = Paths.get(OUT_PATH, "database.xls").toString();
 	private final static long MINUTES = 60 * 1000;
 	private final static long AUTO_SAVE_PERIOD = 5 * MINUTES;
 	private Database database = new Database();
