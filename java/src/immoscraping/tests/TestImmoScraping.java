@@ -17,7 +17,7 @@ class TestImmoScraping {
 
 	@Test
 	void testScrape() throws ParseException, InterruptedException, ClassNotFoundException, IOException {
-		ImmoScraping.main(new String[] { "scrape", "--email", "allo@test.fd", "--since", "16-01-2019 20:00" });
+		ImmoScraping.main(new String[] { "scrape", "--email", "allo@test.fd", "--since", "17-01-2019 19:15" });
 //		fail("Not yet implemented");
 	}
 
@@ -30,6 +30,12 @@ class TestImmoScraping {
 	@Test
 	void testExport() throws ParseException, InterruptedException, ClassNotFoundException, IOException {
 		ImmoScraping.main(new String[] { "export", "--filename", "data.csv" });
+//		fail("Not yet implemented");
+	}
+
+	@Test
+	void testRefreshDatabase() throws ParseException, InterruptedException, ClassNotFoundException, IOException {
+		ImmoScraping.main(new String[] { "refresh" });
 //		fail("Not yet implemented");
 	}
 

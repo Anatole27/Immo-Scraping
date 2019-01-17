@@ -39,10 +39,20 @@ public class ImmoScraping {
 		case "scrape":
 			verifyAndScrape(args);
 			break;
+		case "refresh":
+			refreshDb();
+			break;
 		default:
 			printHelp();
 		}
 
+	}
+
+	private void refreshDb() throws ClassNotFoundException, IOException {
+
+		loadDatabase();
+		database.refresh();
+		saveDatabase();
 	}
 
 	/**

@@ -19,6 +19,7 @@ public class Ad implements Serializable {
 	public boolean isPostprocessed;
 	public String description = "";
 	public String type = "";
+	public int latLonFreq;
 
 	@Override
 	public String toString() {

@@ -45,9 +45,25 @@ public class Database implements Serializable {
 			// Get travel distance
 			ad.travelTime = getDistance(ad.latLon);
 
-			// Is pro ad ?
-			ad.isPro = getIsPro(ad.description);
+			// Get number of lat/lon identical
+			ad.latLonFreq = countLatLon(ad.latLon);
 		}
+	}
+
+	/**
+	 * Counts the number of ads with the given lat/lon. This is usefull to detect a
+	 * genuine address
+	 * 
+	 * @param latLon
+	 * @return
+	 */
+	private int countLatLon(double[] latLon) {
+		int count = 0;
+		for (Ad ad : ads) {
+			if (latLon[0] == ad.latLon[0] && latLon[1] == ad.latLon[1])
+				count++;
+		}
+		return count;
 	}
 
 	private static final String MAPS_URL = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=%f,%f&destinations=%f,%f&mode=bicycling&language=en-EN&sensor=false&key=%s";
@@ -97,23 +113,8 @@ public class Database implements Serializable {
 		return travelTime;
 	}
 
-	private static final String[] PRO_STRING = { "référence annonce", "honoraires", "à la charge" };
-
-	/**
-	 * Return true of some words lead to think it is a pro ad
-	 * 
-	 * @param description
-	 * @return
-	 */
-	private boolean getIsPro(String description) {
-		for (String proString : PRO_STRING) {
-			if (description.toLowerCase().contains(proString)) {
-				return true;
-			}
-		}
-		return false;
-
-	}
+	private static final String[] PRO_STRING = { "ttc", "référence annonce", "référence de l'annonce", "exclusiv",
+			"honoraires", "à la charge", "a saisir" };
 
 	public void export(String filename) {
 		File f = new File(filename);
@@ -151,8 +152,10 @@ public class Database implements Serializable {
 		writer.print("latitude");
 		writer.print(";");
 		writer.print("longitude");
-//		writer.print(";");
-//		writer.print("description");
+		writer.print(";");
+		writer.print("lat/lon freq");
+		// writer.print(";");
+		// writer.print("description");
 		writer.println("");
 
 		// Print ads
@@ -180,10 +183,18 @@ public class Database implements Serializable {
 			writer.print(ad.latLon[0]);
 			writer.print(";");
 			writer.print(ad.latLon[1]);
-//			writer.print(";");
-//			writer.print("\"" + ad.description + "\"");
+			writer.print(";");
+			writer.print(ad.latLonFreq);
+			// writer.print(";");
+			// writer.print("\"" + ad.description + "\"");
 			writer.println("");
 		}
 		writer.close();
+	}
+
+	public void refresh() throws IOException {
+		travelDistanceList.clear();
+		latLongList.clear();
+		this.process();
 	}
 }
