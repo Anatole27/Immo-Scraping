@@ -3,7 +3,7 @@ package immoscraping;
 import java.io.Serializable;
 import java.util.Date;
 
-public class Ad implements Serializable  {
+public class Ad implements Serializable {
 
 	private static final long serialVersionUID = -4475206259882056436L;
 	public char energyGrade;
@@ -18,15 +18,14 @@ public class Ad implements Serializable  {
 	public String url = "";
 	public boolean isPostprocessed;
 	public String description = "";
-	
-	
+	public String type = "";
+
 	@Override
 	public String toString() {
-		String desc = String.format("Ad url=%s\n 1st pub date : %s\n Surface: %f\n"
-				+ " Price: %f\n Lat/lon: %f/%f\n Energy: %s\n GES: %s\n"
-				+ "Description:\n %s", 
-				url, firstPubDate.toString(), surface, price, latLon[0], latLon[1], 
-				energyGrade, gesGrade, description);
+		String desc = String.format(
+				"Ad url=%s\n 1st pub date : %s\n Surface: %f\n" + " Price: %f\n Lat/lon: %f/%f\n Energy: %s\n GES: %s\n"
+						+ "Description:\n %s",
+				url, firstPubDate.toString(), surface, price, latLon[0], latLon[1], energyGrade, gesGrade, description);
 		return desc;
 	}
 }

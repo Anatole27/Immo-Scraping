@@ -7,12 +7,12 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
-	<classpathentry kind="lib" path="libs/byte-buddy-1.8.15.jar"/>
-	<classpathentry kind="lib" path="libs/client-combined-3.141.59-sources.jar"/>
-	<classpathentry kind="lib" path="libs/client-combined-3.141.59.jar"/>
-	<classpathentry kind="lib" path="libs/commons-exec-1.3.jar"/>
-	<classpathentry kind="lib" path="libs/guava-25.0-jre.jar"/>
-	<classpathentry kind="lib" path="libs/okhttp-3.11.0.jar"/>
-	<classpathentry kind="lib" path="libs/okio-1.14.0.jar"/>
+	<classpathentry kind="lib" path="/home/anatole/Documents/Code/Immo-Scraping/java/libs/byte-buddy-1.8.15.jar"/>
+	<classpathentry kind="lib" path="/home/anatole/Documents/Code/Immo-Scraping/java/libs/client-combined-3.141.59.jar"/>
+	<classpathentry kind="lib" path="/home/anatole/Documents/Code/Immo-Scraping/java/libs/client-combined-3.141.59-sources.jar"/>
+	<classpathentry kind="lib" path="/home/anatole/Documents/Code/Immo-Scraping/java/libs/commons-exec-1.3.jar"/>
+	<classpathentry kind="lib" path="/home/anatole/Documents/Code/Immo-Scraping/java/libs/guava-25.0-jre.jar"/>
+	<classpathentry kind="lib" path="/home/anatole/Documents/Code/Immo-Scraping/java/libs/okhttp-3.11.0.jar"/>
+	<classpathentry kind="lib" path="/home/anatole/Documents/Code/Immo-Scraping/java/libs/okio-1.14.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

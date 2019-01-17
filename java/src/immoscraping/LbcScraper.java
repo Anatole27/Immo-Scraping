@@ -24,6 +24,7 @@ public class LbcScraper extends WebScraper {
 	private static final String FIRST_DATE_REGEX = "(?<=first_publication_date\":\")[0-9]{4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}";
 	private static final String LAST_DATE_REGEX = "(?<=index_date\":\")[0-9]{4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}";
 	private static final String DESC_REGEX = "(?<=<span class=\"_2wB1z\" data-reactid=\"[0-9]{1,3}\">).*(?=</span>)";
+	private static final String TYPE_REGEX = "(?<=Type de bien</div><div class=\"_3Jxf3\" data-reactid=\"[0-9]{3}\">)[A-z]*";
 	private static final long SLEEP_DURATION = 10;
 	private Pattern patternAd;
 	WebDriver driver;
@@ -57,7 +58,7 @@ public class LbcScraper extends WebScraper {
 			while (matcherAd.find()) {
 				long time = System.currentTimeMillis();
 				String adUrl = DOMAIN + matcherAd.group();
-				System.out.println(adUrl);
+//				System.out.println(adUrl);
 				ad = getAd(adUrl);
 				database.add(ad);
 
@@ -70,13 +71,13 @@ public class LbcScraper extends WebScraper {
 
 				// End looking for ads if the since date is reached
 				System.out.println("Ad date : " + ad.lastPubDate);
-				System.out.println("Took " + (System.currentTimeMillis() - time) / 1000 + "sec");
+//				System.out.println("Took " + (System.currentTimeMillis() - time) / 1000 + "sec");
 				if (sinceDate.after(ad.lastPubDate)) {
 					break;
 				}
 			}
 			iPage++;
-		} while (sinceDate.before(ad.firstPubDate));
+		} while (sinceDate.before(ad.lastPubDate));
 
 		close();
 
@@ -95,6 +96,9 @@ public class LbcScraper extends WebScraper {
 
 		// Set url
 		ad.url = adUrl;
+
+		// Get type
+		ad.type = getElement(TYPE_REGEX, sourceCode);
 
 		// Get Energy grade
 		String elmt = getElement(ENERGY_GRADE_REGEX, sourceCode);

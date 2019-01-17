@@ -120,10 +120,14 @@ public class ImmoScraping {
 		webScraper.start();
 
 		// Save database periodically in case the program crashes
+		long time = System.currentTimeMillis();
 		while (webScraper.isAlive()) {
-			Thread.sleep(AUTO_SAVE_PERIOD);
-			System.out.println("Saving database");
-			saveDatabase();
+			if (System.currentTimeMillis() - time > AUTO_SAVE_PERIOD) {
+				time = System.currentTimeMillis();
+				System.out.println("Saving database");
+				saveDatabase();
+			}
+			Thread.sleep(ALIVE_CHECK_PERIOD);
 		}
 
 		// Update database information
@@ -220,6 +224,7 @@ public class ImmoScraping {
 	private static final String DEFAULT_FILENAME = Paths.get(OUT_PATH, "database.xls").toString();
 	private final static long MINUTES = 60 * 1000;
 	private final static long AUTO_SAVE_PERIOD = 5 * MINUTES;
+	private final static long ALIVE_CHECK_PERIOD = 1000;
 	private Database database = new Database();
 	private WebScraper webScraper;
 	private Notifier notifier;

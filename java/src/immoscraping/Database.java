@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -124,12 +125,18 @@ public class Database implements Serializable {
 			e.printStackTrace();
 		}
 
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+
 		// Print header
 		writer.print("url");
+		writer.print(";");
+		writer.print("type");
 		writer.print(";");
 		writer.print("surface");
 		writer.print(";");
 		writer.print("price");
+		writer.print(";");
+		writer.print("price/surface");
 		writer.print(";");
 		writer.print("firstPubDate");
 		writer.print(";");
@@ -152,11 +159,15 @@ public class Database implements Serializable {
 		for (Ad ad : ads) {
 			writer.print(ad.url);
 			writer.print(";");
+			writer.print(ad.type);
+			writer.print(";");
 			writer.print(ad.surface);
 			writer.print(";");
 			writer.print(ad.price);
 			writer.print(";");
-			writer.print(ad.firstPubDate);
+			writer.print(ad.price / ad.surface);
+			writer.print(";");
+			writer.print(sdf.format(ad.firstPubDate));
 			writer.print(";");
 			writer.print(ad.isPro);
 			writer.print(";");
