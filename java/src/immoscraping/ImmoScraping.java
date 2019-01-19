@@ -88,11 +88,11 @@ public class ImmoScraping {
 					return;
 				}
 				String since = args[iArg + 1];
-				if (!Pattern.matches("[0-9]{2}-[0-9]{2}-[0-9]{4} [0-9]{2}:[0-9]{2}", since)) {
+				if (!Pattern.matches("[0-9]{2}-[0-9]{2}-[0-9]{4}_[0-9]{2}:[0-9]{2}", since)) {
 					printHelp();
 					return;
 				}
-				SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+				SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy_HH:mm");
 				sinceDate = formatter.parse(since);
 				iArg += 2;
 				break;
@@ -127,6 +127,13 @@ public class ImmoScraping {
 
 		// Load database from the autosave
 		loadDatabase();
+
+		// Launch scrape from the last database update date OR the since date if it is
+		// after the database date.
+		if (sinceDate.before(database.lastUpdate)) {
+			sinceDate = database.lastUpdate;
+		}
+		System.out.format("Running scrape since %s\n", sinceDate);
 		webScraper = new LbcScraper(database, sinceDate);
 		webScraper.start();
 
@@ -149,7 +156,7 @@ public class ImmoScraping {
 
 		// Notify me by email
 		if (!mail.equals("")) {
-			notifier.notify(mail, database);
+			notifier.notify(sinceDate, mail, database);
 		}
 
 	}
@@ -260,6 +267,6 @@ public class ImmoScraping {
 	private final static long ALIVE_CHECK_PERIOD = 1000;
 	private Database database = new Database();
 	private WebScraper webScraper;
-	private Notifier notifier;
+	private Notifier notifier = new Notifier();
 
 }

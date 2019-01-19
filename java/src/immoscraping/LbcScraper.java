@@ -50,6 +50,7 @@ public class LbcScraper extends WebScraper {
 		int iPage = 1;
 
 		Ad ad = new Ad();
+		boolean atLeastOneAd;
 		do {
 			// Load page
 			String url = BASE_SEARCH_URL + iPage;
@@ -59,7 +60,10 @@ public class LbcScraper extends WebScraper {
 
 			// Load each ad
 			Matcher matcherAd = patternAd.matcher(sourceCode);
+			atLeastOneAd = false;
 			while (matcherAd.find()) {
+				atLeastOneAd = true;
+
 				long time = System.currentTimeMillis();
 				String adUrl = DOMAIN + matcherAd.group();
 //				System.out.println(adUrl);
@@ -81,7 +85,7 @@ public class LbcScraper extends WebScraper {
 				}
 			}
 			iPage++;
-		} while (sinceDate.before(ad.lastPubDate));
+		} while (sinceDate.before(ad.lastPubDate) && atLeastOneAd);
 
 		close();
 

@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,6 +23,7 @@ public class Database implements Serializable {
 	protected Vector<Ad> ads = new Vector<>();
 	protected Vector<double[]> latLongList = new Vector<>();
 	protected Vector<Double> travelDistanceList = new Vector<>();
+	Date lastUpdate = new Date(0);
 
 	public Database() {
 	}
@@ -47,6 +49,9 @@ public class Database implements Serializable {
 
 			// Get number of lat/lon identical
 			ad.latLonFreq = countLatLon(ad.latLon);
+
+			// Update last update date
+			lastUpdate = new Date();
 		}
 	}
 
@@ -112,9 +117,6 @@ public class Database implements Serializable {
 
 		return travelTime;
 	}
-
-	private static final String[] PRO_STRING = { "ttc", "référence annonce", "référence de l'annonce", "exclusiv",
-			"honoraires", "à la charge", "a saisir" };
 
 	public void export(String filename, Vector<String> regexList) {
 		File f = new File(filename);
