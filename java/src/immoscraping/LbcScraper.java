@@ -23,9 +23,11 @@ public class LbcScraper extends WebScraper {
 	private static final String LON_REGEX = "(?<=\"lng\":)[0-9]*\\.[0-9]*";
 	private static final String FIRST_DATE_REGEX = "(?<=first_publication_date\":\")[0-9]{4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}";
 	private static final String LAST_DATE_REGEX = "(?<=index_date\":\")[0-9]{4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}";
-	private static final String DESC_REGEX = "(?<=<span class=\"_2wB1z\" data-reactid=\"[0-9]{1,3}\">).*(?=</span>)";
+	private static final String DESC_REGEX = "(?<=\"body\":\").*(?=\",\"ad_type)";
 	private static final String TYPE_REGEX = "(?<=Type de bien</div><div class=\"_3Jxf3\" data-reactid=\"[0-9]{3}\">)[A-z]*";
 	private static final String IS_PRO_REGEX = "N° SIREN";
+	private static final String POSTAL_CODE_REGEX = "(?<=\"zipcode\":\")[0-9]{5}";
+	private static final String ROOMS_REGEX = "(?<=\"key\":\"rooms\",\"value\":\")[0-9]*";
 
 	private static final long SLEEP_DURATION = 10;
 	private Pattern patternAd;
@@ -161,6 +163,12 @@ public class LbcScraper extends WebScraper {
 		if (proString.length() > 0) {
 			ad.isPro = true;
 		}
+
+		// Get postal code
+		ad.zipcode = getElement(POSTAL_CODE_REGEX, sourceCode);
+
+		// Get number of rooms
+		ad.rooms = getElement(ROOMS_REGEX, sourceCode);
 
 		return ad;
 	}

@@ -116,7 +116,7 @@ public class Database implements Serializable {
 	private static final String[] PRO_STRING = { "ttc", "référence annonce", "référence de l'annonce", "exclusiv",
 			"honoraires", "à la charge", "a saisir" };
 
-	public void export(String filename) {
+	public void export(String filename, Vector<String> regexList) {
 		File f = new File(filename);
 		f.getParentFile().mkdirs();
 		PrintWriter writer = null;
@@ -133,7 +133,11 @@ public class Database implements Serializable {
 		writer.print(";");
 		writer.print("type");
 		writer.print(";");
+		writer.print("zipcode");
+		writer.print(";");
 		writer.print("surface");
+		writer.print(";");
+		writer.print("rooms");
 		writer.print(";");
 		writer.print("price");
 		writer.print(";");
@@ -160,11 +164,28 @@ public class Database implements Serializable {
 
 		// Print ads
 		for (Ad ad : ads) {
+			boolean match = true;
+			for (String regex : regexList) {
+				Pattern p = Pattern.compile(regex);
+				Matcher m = p.matcher(ad.description);
+				if (!m.find()) {
+					match = false;
+					break;
+				}
+			}
+			if (!match) {
+				continue;
+			}
+
 			writer.print(ad.url);
 			writer.print(";");
 			writer.print(ad.type);
 			writer.print(";");
+			writer.print(ad.zipcode);
+			writer.print(";");
 			writer.print(ad.surface);
+			writer.print(";");
+			writer.print(ad.rooms);
 			writer.print(";");
 			writer.print(ad.price);
 			writer.print(";");

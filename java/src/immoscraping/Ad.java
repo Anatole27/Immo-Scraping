@@ -20,6 +20,8 @@ public class Ad implements Serializable {
 	public String description = "";
 	public String type = "";
 	public int latLonFreq;
+	public String zipcode;
+	public String rooms;
 
 	@Override
 	public String toString() {

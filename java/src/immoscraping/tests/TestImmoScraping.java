@@ -17,13 +17,13 @@ class TestImmoScraping {
 
 	@Test
 	void testScrape() throws ParseException, InterruptedException, ClassNotFoundException, IOException {
-		ImmoScraping.main(new String[] { "scrape", "--email", "allo@test.fd", "--since", "17-01-2019 19:15" });
+		ImmoScraping.main(new String[] { "scrape", "--email", "allo@test.fd", "--since", "19-01-2019 19:15" });
 //		fail("Not yet implemented");
 	}
 
 	@Test
 	void testCompleteScrape() throws ParseException, InterruptedException, ClassNotFoundException, IOException {
-		ImmoScraping.main(new String[] { "scrape", "--email", "allo@test.fd", "--since", "16-11-2018 12:00" });
+		ImmoScraping.main(new String[] { "scrape", "--email", "allo@test.fd", "--since", "30-11-2018 12:00" });
 //		fail("Not yet implemented");
 	}
 
@@ -36,6 +36,12 @@ class TestImmoScraping {
 	@Test
 	void testRefreshDatabase() throws ParseException, InterruptedException, ClassNotFoundException, IOException {
 		ImmoScraping.main(new String[] { "refresh" });
+//		fail("Not yet implemented");
+	}
+
+	@Test
+	void testExportRegex() throws ParseException, InterruptedException, ClassNotFoundException, IOException {
+		ImmoScraping.main(new String[] { "export", "--filename", "regexData.csv", "--regex", "atelier" });
 //		fail("Not yet implemented");
 	}
 

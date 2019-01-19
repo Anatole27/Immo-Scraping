@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Vector;
 import java.util.regex.Pattern;
 
 public class ImmoScraping {
@@ -177,6 +178,7 @@ public class ImmoScraping {
 	private void verifyAndExportDataBase(String[] args) {
 
 		String filename = DEFAULT_FILENAME;
+		Vector<String> regexList = new Vector<>();
 
 		int iArg = 1;
 		while (iArg < args.length) {
@@ -194,6 +196,27 @@ public class ImmoScraping {
 				iArg += 2;
 				break;
 
+			// keyword
+			case "--regex":
+				iArg++;
+				String regex = args[iArg];
+				if (Pattern.matches("--.*", regex)) {
+					printHelp();
+					return;
+				}
+				regexList.add(regex);
+
+				iArg++;
+				while (iArg < args.length) {
+					regex = args[iArg];
+					if (Pattern.matches("--.*", regex)) {
+						break;
+					}
+					regexList.add(regex);
+					iArg++;
+				}
+				break;
+
 			default:
 				printHelp();
 				return;
@@ -207,11 +230,11 @@ public class ImmoScraping {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		exportDatabase(filename);
+		exportDatabase(filename, regexList);
 	}
 
-	private void exportDatabase(String filename) {
-		database.export(filename);
+	private void exportDatabase(String filename, Vector<String> regexList) {
+		database.export(filename, regexList);
 	}
 
 	/**
