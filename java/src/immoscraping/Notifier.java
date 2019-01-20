@@ -112,7 +112,7 @@ public class Notifier {
 
 			Message message = new MimeMessage(session);
 			message.setFrom(new InternetAddress(username));
-			message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("anatole.verhaegen@gmail.com"));
+			message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destination));
 			message.setSubject(subject);
 			message.setText(body);
 
