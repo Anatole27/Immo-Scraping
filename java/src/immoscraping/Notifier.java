@@ -24,17 +24,24 @@ public class Notifier {
 
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy à HH:mm");
 		String body = "Bonjour Anatole,\n\n";
-		body += "Nouvelles annonces depuis le " + sdf.format(sinceDate) + "\n\n";
+
+		int iAd = 0;
+		for (Ad ad : database.ads) {
+			if (ad.lastPubDate.after(sinceDate)) {
+				iAd++;
+			}
+		}
+		body += String.format("J'ai comptabilisé %d nouvelles annonces depuis le %s\n\n", iAd, sdf.format(sinceDate));
 
 		// Geolocated ads
 		String desc = "Les adresses de ces maisons sont probablement connues";
-		double price = 375000;
+		double price = 420000;
 		double surface = 80;
 		int freq = 1;
 		String type = "Maison";
 		double travelTime = 20 * 60;
-		char energy = 'C';
-		char ges = 'B';
+		char energy = 'Z';
+		char ges = 'Z';
 		body += selectAds(sinceDate, database, desc, price, surface, freq, type, travelTime, energy, ges);
 
 		// Very close ads
@@ -87,7 +94,7 @@ public class Notifier {
 		}
 	}
 
-	private void sendMail(String subject, String body, String destination) throws IOException {
+	public void sendMail(String subject, String body, String destination) throws IOException {
 
 		BufferedReader br = new BufferedReader(new FileReader(MAIL_ADDRESS_FILE));
 		final String username = br.readLine();
@@ -95,6 +102,7 @@ public class Notifier {
 		br = new BufferedReader(new FileReader(PASSWD_FILE));
 		final String password = br.readLine();
 		br.close();
+		System.out.printf("ID: %s, passwd : %s\n", username, password);
 
 		Properties props = new Properties();
 		props.put("mail.smtp.auth", "true");

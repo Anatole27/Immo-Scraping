@@ -45,4 +45,9 @@ class TestNotifier {
 		notifier.notify(sinceDate, mail, db);
 	}
 
+	public static void main(String[] args) throws IOException {
+		Notifier notifier = new Notifier();
+		notifier.sendMail("test", "test", "anatole.verhaegen@gmail.com");
+	}
+
 }

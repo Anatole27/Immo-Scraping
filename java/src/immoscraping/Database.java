@@ -12,6 +12,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,6 +21,7 @@ import java.util.regex.Pattern;
 public class Database implements Serializable {
 
 	private static final long serialVersionUID = -7749365650227300460L;
+	private static final long MONTH = 60l * 60l * 24l * 30l * 1000l;
 	protected Vector<Ad> ads = new Vector<>();
 	protected Vector<double[]> latLongList = new Vector<>();
 	protected Vector<Double> travelDistanceList = new Vector<>();
@@ -43,15 +45,24 @@ public class Database implements Serializable {
 	}
 
 	public void process() throws IOException {
-		for (Ad ad : ads) {
+		// Update last update date
+		lastUpdate = new Date();
+
+		Iterator<Ad> adIt = ads.iterator();
+		while (adIt.hasNext()) {
+
+			Ad ad = adIt.next();
+			if (lastUpdate.getTime() - ad.lastPubDate.getTime() > 2 * MONTH) {
+				adIt.remove();
+				continue;
+			}
+
 			// Get travel distance
 			ad.travelTime = getDistance(ad.latLon);
 
 			// Get number of lat/lon identical
 			ad.latLonFreq = countLatLon(ad.latLon);
 
-			// Update last update date
-			lastUpdate = new Date();
 		}
 	}
 
