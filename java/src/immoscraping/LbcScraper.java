@@ -13,7 +13,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 public class LbcScraper extends WebScraper {
 
 	private static final String DOMAIN = "https://www.leboncoin.fr";
-	private static final String BASE_SEARCH_URL = "https://www.leboncoin.fr/recherche/?category=9&regions=16&location=Toulouse_31400,31320,31650,Toulouse_31500&real_estate_type=2,1&page=";
+	private static final String BASE_SEARCH_URL = "https://www.leboncoin.fr/recherche/?category=9&regions=16&location=Toulouse_31400,31650,Toulouse_31500,Vieille-Toulouse_31320,Pechbusque_31320,Auzeville-Tolosane_31320,Lab%C3%A8ge_31670,Saint-Orens-de-Gameville_31650,Balma_31130&real_estate_type=2,1&page=";
 	private static final String AD_HREF_REGEX = "(?<=clearfix trackable\" rel=\"nofollow\" href=\")/ventes_immobilieres/[0-9]*.htm/";
 	private static final String ENERGY_GRADE_REGEX = "(?<=\"key_label\":\"Classe énergie\",\"value_label\":\")[A-Z]";
 	private static final String GES_REGEX = "(?<=\"key_label\":\"GES\",\"value_label\":\")[A-Z]";

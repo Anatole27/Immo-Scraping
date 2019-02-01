@@ -40,6 +40,9 @@ public class ImmoScraping {
 		case "scrape":
 			verifyAndScrape(args);
 			break;
+		case "notify":
+			notify(args);
+			break;
 		case "refresh":
 			refreshDb();
 			break;
@@ -47,6 +50,62 @@ public class ImmoScraping {
 			printHelp();
 		}
 
+	}
+
+	private void notify(String[] args) throws ClassNotFoundException, IOException, ParseException {
+
+		String mail = "";
+		Date sinceDate = new Date(0);
+
+		int iArg = 1;
+		while (iArg < args.length) {
+
+			switch (args[iArg]) {
+
+			// Website to scrape is specified
+			case "--website":
+				System.out.println("Leboncoin is the only site yet. Option invalid. Returning.");
+				return;
+
+			// The date since last scraping is specified
+			case "--since":
+				if (iArg + 1 >= args.length) {
+					printHelp();
+					return;
+				}
+				String since = args[iArg + 1];
+				if (!Pattern.matches("[0-9]{2}-[0-9]{2}-[0-9]{4}_[0-9]{2}:[0-9]{2}", since)) {
+					printHelp();
+					return;
+				}
+				SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy_HH:mm");
+				sinceDate = formatter.parse(since);
+				iArg += 2;
+				break;
+
+			// The mail to send updates is specified
+			case "--email":
+				if (iArg + 1 >= args.length) {
+					printHelp();
+					return;
+				}
+				mail = args[iArg + 1];
+				if (!Pattern.matches(".*@.*\\..*", mail)) {
+					printHelp();
+					return;
+				}
+				iArg += 2;
+				break;
+
+			default:
+				printHelp();
+				return;
+			}
+
+		}
+
+		loadDatabase();
+		notifier.notify(sinceDate, mail, database);
 	}
 
 	private void refreshDb() throws ClassNotFoundException, IOException {

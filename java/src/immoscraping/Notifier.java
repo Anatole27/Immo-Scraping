@@ -39,7 +39,7 @@ public class Notifier {
 		double surface = 80;
 		int freq = 1;
 		String type = "Maison";
-		double travelTime = 20 * 60;
+		double travelTime = 30 * 60;
 		char energy = 'Z';
 		char ges = 'Z';
 		body += selectAds(sinceDate, database, desc, price, surface, freq, type, travelTime, energy, ges);
@@ -53,13 +53,13 @@ public class Notifier {
 		// Houses
 		desc = "Les maisons";
 		type = "Maison";
-		travelTime = 20 * 60;
+		travelTime = 30 * 60;
 		body += selectAds(sinceDate, database, desc, price, surface, freq, type, travelTime, energy, ges);
 
 		// Flats
 		desc = "Les apparts";
 		type = "Appartement";
-		travelTime = 20 * 60;
+		travelTime = 30 * 60;
 		body += selectAds(sinceDate, database, desc, price, surface, freq, type, travelTime, energy, ges);
 
 		System.out.print(body);
