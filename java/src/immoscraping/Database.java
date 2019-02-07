@@ -177,17 +177,19 @@ public class Database implements Serializable {
 
 		// Print ads
 		for (Ad ad : ads) {
-			boolean match = true;
-			for (String regex : regexList) {
-				Pattern p = Pattern.compile(regex);
-				Matcher m = p.matcher(ad.description);
-				if (!m.find()) {
-					match = false;
-					break;
+			if (regexList.size() > 0) {
+				boolean match = false;
+				for (String regex : regexList) {
+					Pattern p = Pattern.compile(regex);
+					Matcher m = p.matcher(ad.description);
+					if (m.find()) {
+						match = true;
+						break;
+					}
 				}
-			}
-			if (!match) {
-				continue;
+				if (!match) {
+					continue;
+				}
 			}
 
 			writer.print(ad.url);

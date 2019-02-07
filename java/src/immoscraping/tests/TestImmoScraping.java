@@ -43,14 +43,15 @@ class TestImmoScraping {
 
 	@Test
 	void testExportRegex() throws ParseException, InterruptedException, ClassNotFoundException, IOException {
-		ImmoScraping.main(new String[] { "export", "--filename", "regexData.csv", "--regex", "atelier" });
+		ImmoScraping.main(
+				new String[] { "export", "--filename", "regexData.csv", "--regex", "garage", "atelier", "bricol" });
 //		fail("Not yet implemented");
 	}
 
 	@Test
 	void testNotify() throws ParseException, InterruptedException, ClassNotFoundException, IOException {
 		ImmoScraping.main(
-				new String[] { "notify", "--email", "anatole.verhaegen@gmail.com", "--since", "30-01-2019_12:00" });
+				new String[] { "notify", "--email", "anatole.verhaegen@gmail.com", "--since", "05-02-2019_12:00" });
 //		fail("Not yet implemented");
 	}
 
