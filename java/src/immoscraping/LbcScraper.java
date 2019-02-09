@@ -78,7 +78,7 @@ public class LbcScraper extends WebScraper {
 				}
 
 				// End looking for ads if the since date is reached
-				System.out.println("Ad date : " + ad.lastPubDate);
+				System.out.printf("Ad update: %s, first date: %s\n", ad.lastPubDate, ad.firstPubDate);
 //				System.out.println("Took " + (System.currentTimeMillis() - time) / 1000 + "sec");
 				if (sinceDate.after(ad.lastPubDate)) {
 					break;

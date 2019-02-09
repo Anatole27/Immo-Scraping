@@ -184,6 +184,9 @@ public class ImmoScraping {
 	private void runScraping(String mail, Date sinceDate)
 			throws InterruptedException, ClassNotFoundException, IOException {
 
+		// Note date
+		Date today = new Date();
+
 		// Load database from the autosave
 		loadDatabase();
 
@@ -208,7 +211,7 @@ public class ImmoScraping {
 		}
 
 		// Update database information
-		database.process();
+		database.process(today);
 
 		// Save database
 		saveDatabase();

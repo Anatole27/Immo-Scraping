@@ -27,7 +27,7 @@ public class Notifier {
 
 		int iAd = 0;
 		for (Ad ad : database.ads) {
-			if (ad.lastPubDate.after(sinceDate)) {
+			if (ad.firstPubDate.after(sinceDate)) {
 				iAd++;
 			}
 		}
@@ -62,6 +62,9 @@ public class Notifier {
 		travelTime = 30 * 60;
 		body += selectAds(sinceDate, database, desc, price, surface, freq, type, travelTime, energy, ges);
 
+		// All others
+		body += selectAllAds(sinceDate, database);
+
 		System.out.print(body);
 		if (iAd > 0) {
 			sendMail("Immo-scraping du " + sdf.format(new Date()), body, mail);
@@ -77,7 +80,7 @@ public class Notifier {
 				"(Prix < %de, surface > %dm2, type : %s, taf a moins de %d minutes, NRJ >= %s, GES >= %s, freq = %d\n)",
 				(int) price, (int) surface, type, (int) (travelTime / 60), energy, ges, freq);
 		for (Ad ad : database.ads) {
-			if (ad.lastPubDate.after(lastUpdateDate)) {
+			if (ad.firstPubDate.after(lastUpdateDate)) {
 				if (ad.price <= price && ad.surface >= surface && ad.type.compareTo(type) == 0
 						&& ad.travelTime <= travelTime && ad.energyGrade <= energy && ad.gesGrade <= ges
 						&& ad.latLonFreq <= freq) {
@@ -85,6 +88,23 @@ public class Notifier {
 					iAd++;
 				}
 
+			}
+		}
+		submsg += "\n\n";
+		if (iAd > 0) {
+			return submsg;
+		} else {
+			return "";
+		}
+	}
+
+	private String selectAllAds(Date lastUpdateDate, Database database) {
+		int iAd = 0;
+		String submsg = "Toutes les autres : \n";
+		for (Ad ad : database.ads) {
+			if (ad.firstPubDate.after(lastUpdateDate)) {
+				submsg += String.format("%s\n", ad.url, ad.latLon[0], ad.latLon[1]);
+				iAd++;
 			}
 		}
 		submsg += "\n\n";

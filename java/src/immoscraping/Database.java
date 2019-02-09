@@ -44,9 +44,9 @@ public class Database implements Serializable {
 		ads.add(ad);
 	}
 
-	public void process() throws IOException {
+	public void process(Date lastUpdate) throws IOException {
 		// Update last update date
-		lastUpdate = new Date();
+		this.lastUpdate = lastUpdate;
 
 		Iterator<Ad> adIt = ads.iterator();
 		while (adIt.hasNext()) {
@@ -231,6 +231,6 @@ public class Database implements Serializable {
 	public void refresh() throws IOException {
 		travelDistanceList.clear();
 		latLongList.clear();
-		this.process();
+		this.process(this.lastUpdate);
 	}
 }
