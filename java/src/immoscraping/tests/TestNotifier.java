@@ -14,7 +14,7 @@ import immoscraping.Notifier;
 class TestNotifier {
 
 	@Test
-	void test() throws IOException, ParseException {
+	void test() throws IOException, ParseException, InterruptedException {
 		Notifier notifier = new Notifier();
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		Date sinceDate = sdf.parse("01/01/2000");
@@ -29,6 +29,7 @@ class TestNotifier {
 		ad1.type = "Maison";
 		ad1.travelTime = 0;
 		ad1.surface = 100;
+		ad1.url = "ad1";
 		db.add(ad1);
 
 		Ad ad2 = new Ad();
@@ -40,12 +41,13 @@ class TestNotifier {
 		ad2.travelTime = 15 * 60;
 		ad2.type = "Maison";
 		ad2.surface = 100;
+		ad2.url = "ad2";
 		db.add(ad2);
 
 		notifier.notify(sinceDate, mail, db);
 	}
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, InterruptedException {
 		Notifier notifier = new Notifier();
 		notifier.sendMail("test", "test", "anatole.verhaegen@gmail.com");
 	}

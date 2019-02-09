@@ -20,7 +20,7 @@ public class Notifier {
 	private static final String MAIL_ADDRESS_FILE = "/home/anatole/Documents/Code/Immo-Scraping/mailapi/mail_address";
 	private static final String PASSWD_FILE = "/home/anatole/Documents/Code/Immo-Scraping/mailapi/passwd";
 
-	public void notify(Date sinceDate, String mail, Database database) throws IOException {
+	public void notify(Date sinceDate, String mail, Database database) throws IOException, InterruptedException {
 
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy à HH:mm");
 		String body = "Bonjour Anatole,\n\n";
@@ -115,7 +115,7 @@ public class Notifier {
 		}
 	}
 
-	public void sendMail(String subject, String body, String destination) throws IOException {
+	public void sendMail(String subject, String body, String destination) throws IOException, InterruptedException {
 
 		BufferedReader br = new BufferedReader(new FileReader(MAIL_ADDRESS_FILE));
 		final String username = br.readLine();
@@ -137,20 +137,26 @@ public class Notifier {
 			}
 		});
 
-		try {
+		boolean isSendFail = true;
+		while (isSendFail) {
+			try {
 
-			Message message = new MimeMessage(session);
-			message.setFrom(new InternetAddress(username));
-			message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destination));
-			message.setSubject(subject);
-			message.setText(body);
+				Message message = new MimeMessage(session);
+				message.setFrom(new InternetAddress(username));
+				message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destination));
+				message.setSubject(subject);
+				message.setText(body);
 
-			Transport.send(message);
+				Transport.send(message);
 
-			System.out.println("Notification sent");
-
-		} catch (MessagingException e) {
-			throw new RuntimeException(e);
+				System.out.println("Notification sent");
+				isSendFail = false;
+			} catch (MessagingException e) {
+				isSendFail = true;
+				System.out.println("Send failed : ");
+				System.out.println(e.getMessage());
+				Thread.sleep(10000);
+			}
 		}
 	}
 }

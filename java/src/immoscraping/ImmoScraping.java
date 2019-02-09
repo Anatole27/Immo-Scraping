@@ -52,7 +52,8 @@ public class ImmoScraping {
 
 	}
 
-	private void notify(String[] args) throws ClassNotFoundException, IOException, ParseException {
+	private void notify(String[] args)
+			throws ClassNotFoundException, IOException, ParseException, InterruptedException {
 
 		String mail = "";
 		Date sinceDate = new Date(0);
