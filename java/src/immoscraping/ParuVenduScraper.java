@@ -10,31 +10,27 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
-public class LbcScraper extends WebScraper {
+public class ParuVenduScraper extends WebScraper {
 
-	private static final String DOMAIN = "https://www.leboncoin.fr";
-	private static final String BASE_SEARCH_URL = "https://www.leboncoin.fr/recherche/?category=9&regions=16&location=Toulouse_31400,Toulouse_31500,Balma_31130&real_estate_type=2,1&page=";
-	private static final String AD_HREF_REGEX = "(?<=clearfix trackable\" rel=\"nofollow\" href=\")/ventes_immobilieres/[0-9]*.htm/";
-	private static final String ENERGY_GRADE_REGEX = "(?<=\"key_label\":\"Classe énergie\",\"value_label\":\")[A-Z]";
-	private static final String GES_REGEX = "(?<=\"key_label\":\"GES\",\"value_label\":\")[A-Z]";
-	private static final String SURFACE_REGEX = "(?<=\"Surface\",\"value_label\":\")[0-9]*";
-	private static final String PRICE_REGEX = "(?<=\"price\":\\[)[0-9]*";
-	private static final String LAT_REGEX = "(?<=\"lat\":)[0-9]*\\.[0-9]*";
-	private static final String LON_REGEX = "(?<=\"lng\":)[0-9]*\\.[0-9]*";
-	private static final String FIRST_DATE_REGEX = "(?<=first_publication_date\":\")[0-9]{4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}";
-	private static final String LAST_DATE_REGEX = "(?<=index_date\":\")[0-9]{4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}";
-	private static final String DESC_REGEX = "(?<=\"body\":\").*(?=\",\"ad_type)";
-	private static final String TYPE_REGEX = "(?<=Type de bien</div><div class=\"_3Jxf3\" data-reactid=\"[0-9]{3}\">)[A-z]*";
-	private static final String IS_PRO_REGEX = "N° SIREN";
-	private static final String POSTAL_CODE_REGEX = "(?<=\"zipcode\":\")[0-9]{5}";
-	private static final String ROOMS_REGEX = "(?<=\"key\":\"rooms\",\"value\":\")[0-9]*";
+	private static final String DOMAIN = "https://www.paruvendu.fr";
+	private static final String BASE_SEARCH_URL = "https://www.paruvendu.fr/immobilier/annonceimmofo/liste/listeAnnonces?tt=1&tbApp=1&tbDup=1&tbChb=1&tbLof=1&tbAtl=1&tbPla=1&tbMai=1&tbVil=1&tbCha=1&tbPro=1&tbHot=1&tbMou=1&tbFer=1&at=1&nbp0=99&pa=FR&lol=0&ray=50&codeINSEE=PA055,PA056,31044,&p=";
+	private static final String AD_HREF_REGEX = "(?<=<a class=\"voirann\" href=\")\\/immobilier\\/.*(?=\" title)";
+	private static final String ENERGY_GRADE_REGEX = "(?<=communfo/img/DPE/ce_)[a-z](?=\\.png)";
+	private static final String GES_REGEX = "(?<=communfo\\/img\\/DPE\\/ges_)[a-z](?=\\.png)";
+	private static final String SURFACE_REGEX = "(?<='surfmax', \\[')[0-9]*";
+	private static final String PRICE_REGEX = "(?<=prixmax', \\[')[0-9]*";
+	private static final String FIRST_DATE_REGEX = "le [0-9]{1,2}\\/[0-9]{1,2}\\/[0-9]{4} à [0-9]{1,2}:[0-9]{2}";
+	private static final String HOUSE_REGEX = "(villa|maison)";
+	private static final String IS_PRO_REGEX = "Annonce de particulier";
+	private static final String POSTAL_CODE_REGEX = "(?<=\\()[0-9]{5}(?=\\))";
+	private static final String ROOMS_REGEX = "(?<=<strong>Nombre de pièces :<\\/strong>\\n)[0-9]*";
 
 	private static final long SLEEP_DURATION = 10;
 	private Pattern patternAd;
 	WebDriver driver;
 	private Date sinceDate;
 
-	public LbcScraper(Database database, Date sinceDate) {
+	public ParuVenduScraper(Database database, Date sinceDate) {
 		super(database);
 		patternAd = Pattern.compile(AD_HREF_REGEX);
 		this.sinceDate = sinceDate;
@@ -106,27 +102,32 @@ public class LbcScraper extends WebScraper {
 		ad.url = adUrl;
 
 		// Get type
-		ad.type = getElement(TYPE_REGEX, sourceCode);
+		if (getElement(HOUSE_REGEX, ad.url).length() > 0) {
+			ad.type = "Maison";
+		} else {
+			ad.type = "Appartement";
+		}
 
 		// Get Energy grade
 		String elmt = getElement(ENERGY_GRADE_REGEX, sourceCode);
 		if (!elmt.equals("")) {
-			ad.energyGrade = getElement(ENERGY_GRADE_REGEX, sourceCode).charAt(0);
+			ad.energyGrade = Character.toUpperCase(elmt.charAt(0));
 		} else {
 			ad.energyGrade = 'N';
 		}
 
 		// Get GES
-		elmt = getElement(ENERGY_GRADE_REGEX, sourceCode);
+		elmt = getElement(GES_REGEX, sourceCode);
 		if (!elmt.equals("")) {
-			ad.gesGrade = getElement(GES_REGEX, sourceCode).charAt(0);
+			ad.gesGrade = Character.toUpperCase(elmt.charAt(0));
 		} else {
 			ad.gesGrade = 'N';
 		}
 
 		// Get latitude / longitude
-		ad.latLon[0] = Double.parseDouble(getElement(LAT_REGEX, sourceCode));
-		ad.latLon[1] = Double.parseDouble(getElement(LON_REGEX, sourceCode));
+		// Information not available on the site
+		ad.latLon[0] = 43.604401;
+		ad.latLon[1] = 1.44295;
 
 		// Get price
 		ad.price = Double.parseDouble(getElement(PRICE_REGEX, sourceCode));
@@ -139,7 +140,7 @@ public class LbcScraper extends WebScraper {
 		}
 
 		// Get 1st pub date
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("'le' dd/MM/yyyy à HH:mm");
 		try {
 			ad.firstPubDate = dateFormat.parse(getElement(FIRST_DATE_REGEX, sourceCode));
 		} catch (ParseException e) {
@@ -148,16 +149,11 @@ public class LbcScraper extends WebScraper {
 		}
 
 		// Get last pub date
-		try {
-			ad.lastPubDate = dateFormat.parse(getElement(LAST_DATE_REGEX, sourceCode));
-		} catch (ParseException e) {
-			ad.lastPubDate.setTime(System.currentTimeMillis());
-			System.err.println("Date not found in ad " + adUrl);
-		}
+		ad.lastPubDate = ad.firstPubDate;
 
 		// Get description
-		ad.description = getElement(DESC_REGEX, sourceCode);
-		ad.description = ad.description.replace("<br />", "\n");
+		// Too boring to get
+		ad.description = "";
 
 		// Ad is not postprocessed yet
 		ad.isPostprocessed = false;
@@ -165,6 +161,8 @@ public class LbcScraper extends WebScraper {
 		// Get is pro
 		String proString = getElement(IS_PRO_REGEX, sourceCode);
 		if (proString.length() > 0) {
+			ad.isPro = false;
+		} else {
 			ad.isPro = true;
 		}
 

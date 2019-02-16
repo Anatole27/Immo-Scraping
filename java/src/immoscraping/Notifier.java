@@ -66,9 +66,9 @@ public class Notifier {
 		body += selectAllAds(sinceDate, database);
 
 		System.out.print(body);
-		if (iAd > 0) {
-			sendMail("Immo-scraping du " + sdf.format(new Date()), body, mail);
-		}
+//		if (iAd > 0) {
+		sendMail("Immo-scraping du " + sdf.format(new Date()), body, mail);
+//		}
 	}
 
 	private String selectAds(Date lastUpdateDate, Database database, String desc, double price, double surface,

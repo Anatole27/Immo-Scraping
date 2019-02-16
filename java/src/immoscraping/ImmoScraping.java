@@ -196,19 +196,25 @@ public class ImmoScraping {
 		if (sinceDate.before(database.lastUpdate)) {
 			sinceDate = database.lastUpdate;
 		}
-		System.out.format("Running scrape since %s\n", sinceDate);
-		webScraper = new LbcScraper(database, sinceDate);
-		webScraper.start();
+		System.out.format("Running scrape between %s and %s\n", sinceDate, today);
 
-		// Save database periodically in case the program crashes
-		long time = System.currentTimeMillis();
-		while (webScraper.isAlive()) {
-			if (System.currentTimeMillis() - time > AUTO_SAVE_PERIOD) {
-				time = System.currentTimeMillis();
-				System.out.println("Saving database");
-				saveDatabase();
+		// Init scrapers
+		webScrapers.add(new LbcScraper(database, sinceDate));
+		webScrapers.add(new PapScraper(database, sinceDate));
+		webScrapers.add(new ParuVenduScraper(database, sinceDate));
+		for (WebScraper webScraper : webScrapers) {
+			webScraper.start();
+
+			// Save database periodically in case the program crashes
+			long time = System.currentTimeMillis();
+			while (webScraper.isAlive()) {
+				if (System.currentTimeMillis() - time > AUTO_SAVE_PERIOD) {
+					time = System.currentTimeMillis();
+					System.out.println("Saving database");
+					saveDatabase();
+				}
+				Thread.sleep(ALIVE_CHECK_PERIOD);
 			}
-			Thread.sleep(ALIVE_CHECK_PERIOD);
 		}
 
 		// Update database information
@@ -329,7 +335,7 @@ public class ImmoScraping {
 	private final static long AUTO_SAVE_PERIOD = 5 * MINUTES;
 	private final static long ALIVE_CHECK_PERIOD = 1000;
 	private Database database = new Database();
-	private WebScraper webScraper;
+	private Vector<WebScraper> webScrapers = new Vector<WebScraper>();
 	private Notifier notifier = new Notifier();
 
 }

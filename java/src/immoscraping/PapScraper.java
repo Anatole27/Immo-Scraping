@@ -3,6 +3,7 @@ package immoscraping;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,31 +11,28 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
-public class LbcScraper extends WebScraper {
+public class PapScraper extends WebScraper {
 
-	private static final String DOMAIN = "https://www.leboncoin.fr";
-	private static final String BASE_SEARCH_URL = "https://www.leboncoin.fr/recherche/?category=9&regions=16&location=Toulouse_31400,Toulouse_31500,Balma_31130&real_estate_type=2,1&page=";
-	private static final String AD_HREF_REGEX = "(?<=clearfix trackable\" rel=\"nofollow\" href=\")/ventes_immobilieres/[0-9]*.htm/";
-	private static final String ENERGY_GRADE_REGEX = "(?<=\"key_label\":\"Classe énergie\",\"value_label\":\")[A-Z]";
-	private static final String GES_REGEX = "(?<=\"key_label\":\"GES\",\"value_label\":\")[A-Z]";
-	private static final String SURFACE_REGEX = "(?<=\"Surface\",\"value_label\":\")[0-9]*";
-	private static final String PRICE_REGEX = "(?<=\"price\":\\[)[0-9]*";
-	private static final String LAT_REGEX = "(?<=\"lat\":)[0-9]*\\.[0-9]*";
-	private static final String LON_REGEX = "(?<=\"lng\":)[0-9]*\\.[0-9]*";
-	private static final String FIRST_DATE_REGEX = "(?<=first_publication_date\":\")[0-9]{4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}";
-	private static final String LAST_DATE_REGEX = "(?<=index_date\":\")[0-9]{4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}";
-	private static final String DESC_REGEX = "(?<=\"body\":\").*(?=\",\"ad_type)";
-	private static final String TYPE_REGEX = "(?<=Type de bien</div><div class=\"_3Jxf3\" data-reactid=\"[0-9]{3}\">)[A-z]*";
-	private static final String IS_PRO_REGEX = "N° SIREN";
-	private static final String POSTAL_CODE_REGEX = "(?<=\"zipcode\":\")[0-9]{5}";
-	private static final String ROOMS_REGEX = "(?<=\"key\":\"rooms\",\"value\":\")[0-9]*";
+	private static final String DOMAIN = "https://www.pap.fr";
+	private static final String BASE_SEARCH_URL = "https://www.pap.fr/annonce/vente-appartement-maison-balma-31130-g18770g43612-";
+	private static final String AD_HREF_REGEX = "(?<=<a class=\"item-title\" href=\")\\/annonces\\/.*(?=\"\\s*name)";
+	private static final String ENERGY_GRADE_REGEX = "(?<=kvclasse_energie=)[A-Z]";
+	private static final String SURFACE_REGEX = "(?<=kvsurface_max=)[0-9]*";
+	private static final String PRICE_REGEX = "(?<=kvprix_max=)[0-9]*";
+	private static final String LAT_REGEX = "(?<=data-mappy=\"\\{&quot;center&quot;:\\[&quot;)[0-9]*\\.[0-9]*";
+	private static final String LON_REGEX = "(?<=quot;,&quot;)[0-9]*\\.[0-9]*(?=&quot;])";
+	private static final String LAST_DATE_REGEX = "[0-9]* [a-zéû]* [0-9]{4}";
+	private static final String DESC_REGEX = "(?<=<!-- Description \\+ métro -->\\n\\t\\t\\t\\t\\n<div class=\"margin-bottom-30\">\\n\\t<p>)(.*\\n)*.*(?=<\\/p>\\n\\t<p><\\/p>\\n<\\/div>)";
+	private static final String TYPE_REGEX = "(?<=kvtypebien=)[A-z]*";
+	private static final String POSTAL_CODE_REGEX = "(?<=\\()[0-9]{5}(?=\\))";
+	private static final String ROOMS_REGEX = "(?<=kvnb_pieces=)[0-9]*";
 
 	private static final long SLEEP_DURATION = 10;
 	private Pattern patternAd;
 	WebDriver driver;
 	private Date sinceDate;
 
-	public LbcScraper(Database database, Date sinceDate) {
+	public PapScraper(Database database, Date sinceDate) {
 		super(database);
 		patternAd = Pattern.compile(AD_HREF_REGEX);
 		this.sinceDate = sinceDate;
@@ -43,7 +41,7 @@ public class LbcScraper extends WebScraper {
 	@Override
 	public void run() {
 		ChromeOptions chromeOptions = new ChromeOptions();
-//		chromeOptions.addArguments("--headless");
+		// chromeOptions.addArguments("--headless");
 		System.setProperty("webdriver.chrome.driver", "/usr/lib/chromium-browser/chromedriver");
 		driver = new ChromeDriver(chromeOptions);
 
@@ -66,7 +64,7 @@ public class LbcScraper extends WebScraper {
 				atLeastOneAd = true;
 
 				String adUrl = DOMAIN + matcherAd.group();
-//				System.out.println(adUrl);
+				// System.out.println(adUrl);
 				ad = getAd(adUrl);
 				database.add(ad);
 
@@ -79,7 +77,8 @@ public class LbcScraper extends WebScraper {
 
 				// End looking for ads if the since date is reached
 				System.out.printf("Ad update: %s, first date: %s\n", ad.lastPubDate, ad.firstPubDate);
-//				System.out.println("Took " + (System.currentTimeMillis() - time) / 1000 + "sec");
+				// System.out.println("Took " + (System.currentTimeMillis() - time) / 1000 +
+				// "sec");
 				if (sinceDate.after(ad.lastPubDate)) {
 					break;
 				}
@@ -107,6 +106,7 @@ public class LbcScraper extends WebScraper {
 
 		// Get type
 		ad.type = getElement(TYPE_REGEX, sourceCode);
+		ad.type = Character.toUpperCase(ad.type.charAt(0)) + ad.type.substring(1);
 
 		// Get Energy grade
 		String elmt = getElement(ENERGY_GRADE_REGEX, sourceCode);
@@ -117,16 +117,17 @@ public class LbcScraper extends WebScraper {
 		}
 
 		// Get GES
-		elmt = getElement(ENERGY_GRADE_REGEX, sourceCode);
-		if (!elmt.equals("")) {
-			ad.gesGrade = getElement(GES_REGEX, sourceCode).charAt(0);
-		} else {
-			ad.gesGrade = 'N';
-		}
+		ad.gesGrade = 'N';
 
 		// Get latitude / longitude
-		ad.latLon[0] = Double.parseDouble(getElement(LAT_REGEX, sourceCode));
-		ad.latLon[1] = Double.parseDouble(getElement(LON_REGEX, sourceCode));
+		try {
+			ad.latLon[0] = Double.parseDouble(getElement(LAT_REGEX, sourceCode));
+			ad.latLon[1] = Double.parseDouble(getElement(LON_REGEX, sourceCode));
+		} catch (Exception e) {
+			System.err.printf("No lat/lon found for %s\n", ad.url);
+			ad.latLon[0] = 43.604401;
+			ad.latLon[1] = 1.44295;
+		}
 
 		// Get price
 		ad.price = Double.parseDouble(getElement(PRICE_REGEX, sourceCode));
@@ -139,21 +140,16 @@ public class LbcScraper extends WebScraper {
 		}
 
 		// Get 1st pub date
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy", Locale.FRANCE);
 		try {
-			ad.firstPubDate = dateFormat.parse(getElement(FIRST_DATE_REGEX, sourceCode));
+			ad.firstPubDate = dateFormat.parse(getElement(LAST_DATE_REGEX, sourceCode));
 		} catch (ParseException e) {
 			ad.firstPubDate.setTime(System.currentTimeMillis());
 			System.err.println("Date not found in ad " + adUrl);
 		}
 
 		// Get last pub date
-		try {
-			ad.lastPubDate = dateFormat.parse(getElement(LAST_DATE_REGEX, sourceCode));
-		} catch (ParseException e) {
-			ad.lastPubDate.setTime(System.currentTimeMillis());
-			System.err.println("Date not found in ad " + adUrl);
-		}
+		ad.lastPubDate = ad.firstPubDate;
 
 		// Get description
 		ad.description = getElement(DESC_REGEX, sourceCode);
@@ -163,10 +159,7 @@ public class LbcScraper extends WebScraper {
 		ad.isPostprocessed = false;
 
 		// Get is pro
-		String proString = getElement(IS_PRO_REGEX, sourceCode);
-		if (proString.length() > 0) {
-			ad.isPro = true;
-		}
+		ad.isPro = false;
 
 		// Get postal code
 		ad.zipcode = getElement(POSTAL_CODE_REGEX, sourceCode);

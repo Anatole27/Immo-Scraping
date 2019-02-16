@@ -37,7 +37,12 @@ public class Database implements Serializable {
 	 */
 	public void add(Ad ad) {
 		for (int i = 0; i < ads.size(); i++) {
-			if (ad.url.equals(ads.get(i).url)) {
+			Ad adi = ads.get(i);
+			if (ad.url.equals(adi.url) || (!ad.description.isEmpty() && ad.description.contentEquals(adi.description))
+					|| (ad.isPro == adi.isPro && ad.price == adi.price && ad.latLon == adi.latLon
+							&& ad.surface == adi.surface && ad.rooms == adi.rooms
+							&& ad.energyGrade == adi.energyGrade)) {
+				adi.lastPubDate = ad.lastPubDate;
 				return;
 			}
 		}
