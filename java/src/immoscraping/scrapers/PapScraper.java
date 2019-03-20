@@ -1,4 +1,4 @@
-package immoscraping;
+package immoscraping.scrapers;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,10 +11,13 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
+import immoscraping.Ad;
+import immoscraping.Database;
+
 public class PapScraper extends WebScraper {
 
 	private static final String DOMAIN = "https://www.pap.fr";
-	private static final String BASE_SEARCH_URL = "https://www.pap.fr/annonce/vente-appartement-maison-balma-31130-g18770g43612-";
+	private static final String BASE_SEARCH_URL = "https://www.pap.fr/annonce/vente-appartement-maison-toulouse-31-g43612-";
 	private static final String AD_HREF_REGEX = "(?<=<a class=\"item-title\" href=\")\\/annonces\\/.*(?=\"\\s*name)";
 	private static final String ENERGY_GRADE_REGEX = "(?<=kvclasse_energie=)[A-Z]";
 	private static final String SURFACE_REGEX = "(?<=kvsurface_max=)[0-9]*";
@@ -65,7 +68,13 @@ public class PapScraper extends WebScraper {
 
 				String adUrl = DOMAIN + matcherAd.group();
 				// System.out.println(adUrl);
-				ad = getAd(adUrl);
+				try {
+					ad = getAd(adUrl);
+				} catch (Exception e) {
+					System.err.println("Error on ad URL :");
+					System.err.println(adUrl);
+					System.err.println(e.toString());
+				}
 				database.add(ad);
 
 				// Give back focus

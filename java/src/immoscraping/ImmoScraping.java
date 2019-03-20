@@ -9,11 +9,23 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Random;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
+import immoscraping.scrapers.LbcScraper;
+import immoscraping.scrapers.PapScraper;
+import immoscraping.scrapers.ParuVenduScraper;
+import immoscraping.scrapers.WebScraper;
+
 public class ImmoScraping {
+
+	private static final long LOOP_PERIOD = 1800000; // ms
+	private static final int WAKING_UP_HOUR = 8;
+	private static final int SLEEPING_HOUR = 20;
 
 	public static void main(String[] args)
 			throws ParseException, InterruptedException, ClassNotFoundException, IOException {
@@ -62,11 +74,6 @@ public class ImmoScraping {
 		while (iArg < args.length) {
 
 			switch (args[iArg]) {
-
-			// Website to scrape is specified
-			case "--website":
-				System.out.println("Leboncoin is the only site yet. Option invalid. Returning.");
-				return;
 
 			// The date since last scraping is specified
 			case "--since":
@@ -130,16 +137,12 @@ public class ImmoScraping {
 
 		String mail = "";
 		Date sinceDate = new Date(0);
+		boolean isLoop = false;
 
 		int iArg = 1;
 		while (iArg < args.length) {
 
 			switch (args[iArg]) {
-
-			// Website to scrape is specified
-			case "--website":
-				System.out.println("Leboncoin is the only site yet. Option invalid. Returning.");
-				return;
 
 			// The date since last scraping is specified
 			case "--since":
@@ -171,6 +174,12 @@ public class ImmoScraping {
 				iArg += 2;
 				break;
 
+			// Used to keep on scraping
+			case "--loop":
+				isLoop = true;
+				iArg += 1;
+				break;
+
 			default:
 				printHelp();
 				return;
@@ -178,56 +187,96 @@ public class ImmoScraping {
 
 		}
 
-		runScraping(mail, sinceDate);
+		runScraping(mail, sinceDate, isLoop);
 
 	}
 
-	private void runScraping(String mail, Date sinceDate)
+	Date nextScrapeDate;
+
+	private void runScraping(String mail, Date sinceDate, boolean isLoop)
 			throws InterruptedException, ClassNotFoundException, IOException {
 
-		// Note date
-		Date today = new Date();
+		nextScrapeDate = new Date();
 
-		// Load database from the autosave
-		loadDatabase();
+		while (true) {
+			if (isTimeToScrape()) {
+				// Note date
+				Date today = new Date();
 
-		// Launch scrape from the last database update date OR the since date if it is
-		// after the database date.
-		if (sinceDate.before(database.lastUpdate)) {
-			sinceDate = database.lastUpdate;
-		}
-		System.out.format("Running scrape between %s and %s\n", sinceDate, today);
+				// Load database from the autosave
+				loadDatabase();
 
-		// Init scrapers
-		webScrapers.add(new LbcScraper(database, sinceDate));
-		webScrapers.add(new PapScraper(database, sinceDate));
-		webScrapers.add(new ParuVenduScraper(database, sinceDate));
-		for (WebScraper webScraper : webScrapers) {
-			webScraper.start();
-
-			// Save database periodically in case the program crashes
-			long time = System.currentTimeMillis();
-			while (webScraper.isAlive()) {
-				if (System.currentTimeMillis() - time > AUTO_SAVE_PERIOD) {
-					time = System.currentTimeMillis();
-					System.out.println("Saving database");
-					saveDatabase();
+				// Launch scrape from the last database update date OR the since date if it is
+				// after the database date.
+				if (sinceDate.before(database.lastUpdate)) {
+					sinceDate = database.lastUpdate;
 				}
-				Thread.sleep(ALIVE_CHECK_PERIOD);
+				System.out.format("Running scrape between %s and %s\n", sinceDate, today);
+
+				// Init scrapers
+				webScrapers.add(new LbcScraper(database, sinceDate));
+				webScrapers.add(new PapScraper(database, sinceDate));
+				webScrapers.add(new ParuVenduScraper(database, sinceDate));
+				for (WebScraper webScraper : webScrapers) {
+					webScraper.start();
+
+					// Save database periodically in case the program crashes
+					long time = System.currentTimeMillis();
+					while (webScraper.isAlive()) {
+						if (System.currentTimeMillis() - time > AUTO_SAVE_PERIOD) {
+							time = System.currentTimeMillis();
+							System.out.println("Saving database");
+							saveDatabase();
+						}
+						Thread.sleep(ALIVE_CHECK_PERIOD);
+					}
+				}
+
+				// Update database information
+				database.process(today);
+
+				// Save database
+				saveDatabase();
+
+				// Notify me by email
+				if (!mail.equals("")) {
+					notifier.notify(sinceDate, mail, database);
+				}
 			}
+			Thread.sleep(1000);
 		}
+	}
 
-		// Update database information
-		database.process(today);
+	Random rand = new Random(0);
+	Calendar calendar = new GregorianCalendar();
 
-		// Save database
-		saveDatabase();
+	/**
+	 * @return True when it is time to scrape
+	 */
+	private boolean isTimeToScrape() {
+		Date currentDate = new Date();
+		if (currentDate.after(nextScrapeDate)) {
 
-		// Notify me by email
-		if (!mail.equals("")) {
-			notifier.notify(sinceDate, mail, database);
+			// Find the next scraping date by incrementing
+			// No scrape at night
+			boolean isDaylight = false;
+			while (!isDaylight) {
+				long nextScrapeTime = nextScrapeDate.getTime();
+				nextScrapeTime += LOOP_PERIOD * (1 + rand.nextGaussian() / 10); // Random to make it look humanly
+				nextScrapeDate.setTime(nextScrapeTime);
+				calendar.setTime(nextScrapeDate);
+				int dayHour = calendar.get(Calendar.HOUR_OF_DAY);
+				if (dayHour >= WAKING_UP_HOUR && dayHour < SLEEPING_HOUR) {
+					isDaylight = true;
+				}
+			}
+			SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd MMMM à HH:mm");
+			System.out.printf("Prochain scan le %s\n", sdf.format(nextScrapeDate));
+
+			return true;
+		} else {
+			return false;
 		}
-
 	}
 
 	private void loadDatabase() throws IOException, ClassNotFoundException {

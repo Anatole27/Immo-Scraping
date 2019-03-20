@@ -17,8 +17,8 @@ class TestImmoScraping {
 
 	@Test
 	void testScrape() throws ParseException, InterruptedException, ClassNotFoundException, IOException {
-		ImmoScraping.main(
-				new String[] { "scrape", "--email", "anatole.verhaegen@gmail.com", "--since", "15-02-2019_23:55" });
+		ImmoScraping.main(new String[] { "scrape", "--email", "anatole.verhaegen@gmail.com", "--since",
+				"19-03-2019_13:46", "--loop" });
 //		fail("Not yet implemented");
 	}
 

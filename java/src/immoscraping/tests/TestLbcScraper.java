@@ -3,7 +3,7 @@ package immoscraping.tests;
 import java.util.Date;
 
 import immoscraping.Database;
-import immoscraping.LbcScraper;
+import immoscraping.scrapers.LbcScraper;
 
 class TestLbcScraper {
 

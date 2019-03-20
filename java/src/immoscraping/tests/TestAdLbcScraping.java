@@ -6,7 +6,7 @@ import java.util.Date;
 
 import immoscraping.Ad;
 import immoscraping.Database;
-import immoscraping.LbcScraper;
+import immoscraping.scrapers.LbcScraper;
 
 class TestAdLbcScraping extends LbcScraper {
 

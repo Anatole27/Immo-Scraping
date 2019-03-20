@@ -35,8 +35,8 @@ public class Notifier {
 
 		// Geolocated ads
 		String desc = "Les adresses de ces maisons sont probablement connues";
-		double price = 420000;
-		double surface = 80;
+		double price = 500000;
+		double surface = 90;
 		int freq = 1;
 		String type = "Maison";
 		double travelTime = 30 * 60;
@@ -55,20 +55,20 @@ public class Notifier {
 		type = "Maison";
 		travelTime = 30 * 60;
 		body += selectAds(sinceDate, database, desc, price, surface, freq, type, travelTime, energy, ges);
-
-		// Flats
-		desc = "Les apparts";
-		type = "Appartement";
-		travelTime = 30 * 60;
-		body += selectAds(sinceDate, database, desc, price, surface, freq, type, travelTime, energy, ges);
-
-		// All others
-		body += selectAllAds(sinceDate, database);
+//
+//		// Flats
+//		desc = "Les apparts";
+//		type = "Appartement";
+//		travelTime = 30 * 60;
+//		body += selectAds(sinceDate, database, desc, price, surface, freq, type, travelTime, energy, ges);
+//
+//		// All others
+//		body += selectAllAds(sinceDate, database);
 
 		System.out.print(body);
-//		if (iAd > 0) {
-		sendMail("Immo-scraping du " + sdf.format(new Date()), body, mail);
-//		}
+		if (iAd > 0) {
+			sendMail("Immo-scraping du " + sdf.format(new Date()), body, mail);
+		}
 	}
 
 	private String selectAds(Date lastUpdateDate, Database database, String desc, double price, double surface,

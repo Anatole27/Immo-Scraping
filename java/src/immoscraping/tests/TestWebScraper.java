@@ -2,7 +2,7 @@ package immoscraping.tests;
 
 import org.junit.jupiter.api.Test;
 
-import immoscraping.WebScraper;
+import immoscraping.scrapers.WebScraper;
 
 class TestWebScraper {
 
