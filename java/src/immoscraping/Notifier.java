@@ -25,13 +25,15 @@ public class Notifier {
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy à HH:mm");
 		String body = "Bonjour Anatole,\n\n";
 
-		int iAd = 0;
+		int[] iAd = new int[1];
 		for (Ad ad : database.ads) {
 			if (ad.firstPubDate.after(sinceDate)) {
-				iAd++;
+				iAd[0]++;
 			}
 		}
-		body += String.format("J'ai comptabilisé %d nouvelles annonces depuis le %s\n\n", iAd, sdf.format(sinceDate));
+		body += String.format("J'ai comptabilisé %d nouvelles annonces depuis le %s\n\n", iAd[0],
+				sdf.format(sinceDate));
+		iAd[0] = 0;
 
 		// Geolocated ads
 		String desc = "Les adresses de ces maisons sont probablement connues";
@@ -42,19 +44,19 @@ public class Notifier {
 		double travelTime = 30 * 60;
 		char energy = 'Z';
 		char ges = 'Z';
-		body += selectAds(sinceDate, database, desc, price, surface, freq, type, travelTime, energy, ges);
+		body += selectAds(sinceDate, database, desc, price, surface, freq, type, travelTime, energy, ges, iAd);
 
 		// Very close ads
 		desc = "Ces maisons sont très proche du boulot";
 		freq = Integer.MAX_VALUE;
 		travelTime = 10 * 60;
-		body += selectAds(sinceDate, database, desc, price, surface, freq, type, travelTime, energy, ges);
+		body += selectAds(sinceDate, database, desc, price, surface, freq, type, travelTime, energy, ges, iAd);
 
 		// Houses
 		desc = "Les maisons";
 		type = "Maison";
 		travelTime = 30 * 60;
-		body += selectAds(sinceDate, database, desc, price, surface, freq, type, travelTime, energy, ges);
+		body += selectAds(sinceDate, database, desc, price, surface, freq, type, travelTime, energy, ges, iAd);
 //
 //		// Flats
 //		desc = "Les apparts";
@@ -66,14 +68,13 @@ public class Notifier {
 //		body += selectAllAds(sinceDate, database);
 
 		System.out.print(body);
-		if (iAd > 0) {
+		if (iAd[0] > 0) {
 			sendMail("Immo-scraping du " + sdf.format(new Date()), body, mail);
 		}
 	}
 
 	private String selectAds(Date lastUpdateDate, Database database, String desc, double price, double surface,
-			int freq, String type, double travelTime, char energy, char ges) {
-		int iAd = 0;
+			int freq, String type, double travelTime, char energy, char ges, int[] iAd) {
 		String submsg = "";
 		submsg += String.format("%s:\n", desc);
 		submsg += String.format(
@@ -85,17 +86,17 @@ public class Notifier {
 						&& ad.travelTime <= travelTime && ad.energyGrade <= energy && ad.gesGrade <= ges
 						&& ad.latLonFreq <= freq) {
 					submsg += String.format("%s (lat,long)=(%f,%f)\n", ad.url, ad.latLon[0], ad.latLon[1]);
-					iAd++;
+					iAd[0]++;
 				}
 
 			}
 		}
 		submsg += "\n\n";
-		if (iAd > 0) {
-			return submsg;
-		} else {
-			return "";
+		if (iAd[0] == 0) {
+			submsg = "";
 		}
+		System.out.println(iAd);
+		return submsg;
 	}
 
 	private String selectAllAds(Date lastUpdateDate, Database database) {

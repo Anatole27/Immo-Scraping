@@ -214,6 +214,7 @@ public class ImmoScraping {
 				System.out.format("Running scrape between %s and %s\n", sinceDate, today);
 
 				// Init scrapers
+				webScrapers.clear();
 				webScrapers.add(new LbcScraper(database, sinceDate));
 				webScrapers.add(new PapScraper(database, sinceDate));
 				webScrapers.add(new ParuVenduScraper(database, sinceDate));
