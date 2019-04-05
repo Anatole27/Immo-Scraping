@@ -23,16 +23,16 @@ public class Notifier {
 	public void notify(Date sinceDate, String mail, Database database) throws IOException, InterruptedException {
 
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy à HH:mm");
+		SimpleDateFormat sdfEng = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 		String body = "Bonjour Anatole,\n\n";
 
 		int[] iAd = new int[1];
 		for (Ad ad : database.ads) {
-			if (ad.firstPubDate.after(sinceDate)) {
+			if (ad.discoverDate.after(sinceDate)) {
 				iAd[0]++;
 			}
 		}
-		body += String.format("J'ai comptabilisé %d nouvelles annonces depuis le %s\n\n", iAd[0],
-				sdf.format(sinceDate));
+		body += String.format("Ces annonces pourraient vous intéresser :\n");
 		iAd[0] = 0;
 
 		// Geolocated ads
@@ -66,9 +66,13 @@ public class Notifier {
 //
 //		// All others
 //		body += selectAllAds(sinceDate, database);
+		System.out.format("\n%d new ads between %s and %s.\n", iAd[0], sdfEng.format(sinceDate),
+				sdfEng.format(new Date()));
 
-		System.out.print(body);
 		if (iAd[0] > 0) {
+			System.out.println("____________________________________________________________________\n");
+			System.out.print(body);
+			System.out.println("____________________________________________________________________\n");
 			sendMail("Immo-scraping du " + sdf.format(new Date()), body, mail);
 		}
 	}
@@ -76,12 +80,13 @@ public class Notifier {
 	private String selectAds(Date lastUpdateDate, Database database, String desc, double price, double surface,
 			int freq, String type, double travelTime, char energy, char ges, int[] iAd) {
 		String submsg = "";
+		submsg += "\n\n";
 		submsg += String.format("%s:\n", desc);
 		submsg += String.format(
 				"(Prix < %de, surface > %dm2, type : %s, taf a moins de %d minutes, NRJ >= %s, GES >= %s, freq = %d\n)",
 				(int) price, (int) surface, type, (int) (travelTime / 60), energy, ges, freq);
 		for (Ad ad : database.ads) {
-			if (ad.firstPubDate.after(lastUpdateDate)) {
+			if (ad.discoverDate.after(lastUpdateDate)) {
 				if (ad.price <= price && ad.surface >= surface && ad.type.compareTo(type) == 0
 						&& ad.travelTime <= travelTime && ad.energyGrade <= energy && ad.gesGrade <= ges
 						&& ad.latLonFreq <= freq) {
@@ -91,29 +96,10 @@ public class Notifier {
 
 			}
 		}
-		submsg += "\n\n";
 		if (iAd[0] == 0) {
 			submsg = "";
 		}
-		System.out.println(iAd);
 		return submsg;
-	}
-
-	private String selectAllAds(Date lastUpdateDate, Database database) {
-		int iAd = 0;
-		String submsg = "Toutes les autres : \n";
-		for (Ad ad : database.ads) {
-			if (ad.firstPubDate.after(lastUpdateDate)) {
-				submsg += String.format("%s\n", ad.url, ad.latLon[0], ad.latLon[1]);
-				iAd++;
-			}
-		}
-		submsg += "\n\n";
-		if (iAd > 0) {
-			return submsg;
-		} else {
-			return "";
-		}
 	}
 
 	public void sendMail(String subject, String body, String destination) throws IOException, InterruptedException {

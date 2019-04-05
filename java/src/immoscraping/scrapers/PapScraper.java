@@ -4,12 +4,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 
 import immoscraping.Ad;
 import immoscraping.Database;
@@ -30,79 +24,11 @@ public class PapScraper extends WebScraper {
 	private static final String POSTAL_CODE_REGEX = "(?<=\\()[0-9]{5}(?=\\))";
 	private static final String ROOMS_REGEX = "(?<=kvnb_pieces=)[0-9]*";
 
-	private static final long SLEEP_DURATION = 10;
-	private Pattern patternAd;
-	WebDriver driver;
-	private Date sinceDate;
-
 	public PapScraper(Database database, Date sinceDate) {
-		super(database);
-		patternAd = Pattern.compile(AD_HREF_REGEX);
-		this.sinceDate = sinceDate;
+		super(database, sinceDate, DOMAIN, BASE_SEARCH_URL, AD_HREF_REGEX);
 	}
 
 	@Override
-	public void run() {
-		ChromeOptions chromeOptions = new ChromeOptions();
-		// chromeOptions.addArguments("--headless");
-		System.setProperty("webdriver.chrome.driver", "/usr/lib/chromium-browser/chromedriver");
-		driver = new ChromeDriver(chromeOptions);
-
-		int iPage = 1;
-
-		Ad ad = new Ad();
-		boolean atLeastOneAd;
-		do {
-			// Load page
-			String url = BASE_SEARCH_URL + iPage;
-			System.out.println(url);
-			driver.get(url);
-			String sourceCode = driver.getPageSource();
-
-			// Load each ad
-			Matcher matcherAd = patternAd.matcher(sourceCode);
-			atLeastOneAd = false;
-			while (matcherAd.find()) {
-
-				atLeastOneAd = true;
-
-				String adUrl = DOMAIN + matcherAd.group();
-				// System.out.println(adUrl);
-				try {
-					ad = getAd(adUrl);
-				} catch (Exception e) {
-					System.err.println("Error on ad URL :");
-					System.err.println(adUrl);
-					System.err.println(e.toString());
-				}
-				database.add(ad);
-
-				// Give back focus
-				try {
-					Thread.sleep(SLEEP_DURATION);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-
-				// End looking for ads if the since date is reached
-				System.out.printf("Ad update: %s, first date: %s\n", ad.lastPubDate, ad.firstPubDate);
-				// System.out.println("Took " + (System.currentTimeMillis() - time) / 1000 +
-				// "sec");
-				if (sinceDate.after(ad.lastPubDate)) {
-					break;
-				}
-			}
-			iPage++;
-		} while (sinceDate.before(ad.lastPubDate) && atLeastOneAd);
-
-		close();
-
-	}
-
-	public void close() {
-		driver.quit();
-	}
-
 	protected Ad getAd(String adUrl) {
 
 		driver.get(adUrl);
@@ -179,14 +105,16 @@ public class PapScraper extends WebScraper {
 		return ad;
 	}
 
-	private String getElement(String regex, String sourceCode) {
-		Pattern p = Pattern.compile(regex);
-		Matcher m = p.matcher(sourceCode);
-		if (m.find()) {
-			return m.group();
-		} else {
-			return "";
+	@Override
+	protected void addToDatabase(Ad ad) {
+		if (ad.lastPubDate.after(database.lastPapAdDate)) {
+			database.lastPapAdDate = ad.lastPubDate;
 		}
+		database.add(ad);
 	}
 
+	@Override
+	protected String getSiteName() {
+		return "PAP";
+	}
 }

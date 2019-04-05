@@ -1,7 +1,6 @@
 package immoscraping.tests;
 
 import java.io.IOException;
-import java.util.Date;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
@@ -33,19 +32,19 @@ class TestDatabase extends Database {
 		ad3.latLon = new double[] { 43.553459, 1.496918 };
 
 		add(ad1);
-		process(new Date());
+		process();
 		Assert.assertTrue(this.ads.size() == 1);
 		Assert.assertTrue(this.latLongList.size() == 1);
 		Assert.assertTrue(this.travelDistanceList.size() == 1);
 
 		add(ad2);
-		process(new Date());
+		process();
 		Assert.assertTrue(this.ads.size() == 1);
 		Assert.assertTrue(this.latLongList.size() == 1);
 		Assert.assertTrue(this.travelDistanceList.size() == 1);
 
 		add(ad3);
-		process(new Date());
+		process();
 		Assert.assertTrue(this.ads.size() == 2);
 		Assert.assertTrue(this.latLongList.size() == 1);
 		Assert.assertTrue(this.travelDistanceList.size() == 1);

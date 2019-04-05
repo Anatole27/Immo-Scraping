@@ -22,6 +22,7 @@ public class Ad implements Serializable {
 	public int latLonFreq;
 	public String zipcode;
 	public String rooms;
+	public Date discoverDate = new Date();
 
 	@Override
 	public String toString() {

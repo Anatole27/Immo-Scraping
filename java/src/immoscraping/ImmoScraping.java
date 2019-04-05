@@ -25,7 +25,7 @@ public class ImmoScraping {
 
 	private static final long LOOP_PERIOD = 1800000; // ms
 	private static final int WAKING_UP_HOUR = 8;
-	private static final int SLEEPING_HOUR = 20;
+	private static final int SLEEPING_HOUR = 23;
 
 	public static void main(String[] args)
 			throws ParseException, InterruptedException, ClassNotFoundException, IOException {
@@ -198,26 +198,24 @@ public class ImmoScraping {
 
 		nextScrapeDate = new Date();
 
-		while (true) {
+		do {
 			if (isTimeToScrape()) {
-				// Note date
-				Date today = new Date();
 
 				// Load database from the autosave
 				loadDatabase();
 
-				// Launch scrape from the last database update date OR the since date if it is
-				// after the database date.
-				if (sinceDate.before(database.lastUpdate)) {
-					sinceDate = database.lastUpdate;
-				}
-				System.out.format("Running scrape between %s and %s\n", sinceDate, today);
-
 				// Init scrapers
 				webScrapers.clear();
-				webScrapers.add(new LbcScraper(database, sinceDate));
-				webScrapers.add(new PapScraper(database, sinceDate));
-				webScrapers.add(new ParuVenduScraper(database, sinceDate));
+				if (isLoop) {
+					sinceDate = new Date();
+					webScrapers.add(new LbcScraper(database, database.lastLbcAdDate));
+					webScrapers.add(new PapScraper(database, database.lastPapAdDate));
+					webScrapers.add(new ParuVenduScraper(database, database.lastParuVenduAdDate));
+				} else {
+					webScrapers.add(new LbcScraper(database, sinceDate));
+					webScrapers.add(new PapScraper(database, sinceDate));
+					webScrapers.add(new ParuVenduScraper(database, sinceDate));
+				}
 				for (WebScraper webScraper : webScrapers) {
 					webScraper.start();
 
@@ -234,7 +232,7 @@ public class ImmoScraping {
 				}
 
 				// Update database information
-				database.process(today);
+				database.process();
 
 				// Save database
 				saveDatabase();
@@ -245,18 +243,19 @@ public class ImmoScraping {
 				}
 			}
 			Thread.sleep(1000);
-		}
+		} while (isLoop);
 	}
 
 	Random rand = new Random(0);
 	Calendar calendar = new GregorianCalendar();
+	boolean scanEnd = false;
 
 	/**
 	 * @return True when it is time to scrape
 	 */
 	private boolean isTimeToScrape() {
 		Date currentDate = new Date();
-		if (currentDate.after(nextScrapeDate)) {
+		if (!currentDate.before(nextScrapeDate)) {
 
 			// Find the next scraping date by incrementing
 			// No scrape at night
@@ -271,11 +270,14 @@ public class ImmoScraping {
 					isDaylight = true;
 				}
 			}
-			SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd MMMM à HH:mm");
-			System.out.printf("Prochain scan le %s\n", sdf.format(nextScrapeDate));
-
+			scanEnd = true;
 			return true;
 		} else {
+			if (scanEnd) {
+				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM HH:mm");
+				System.out.printf("Next scan: %s\n", sdf.format(nextScrapeDate));
+				scanEnd = false;
+			}
 			return false;
 		}
 	}

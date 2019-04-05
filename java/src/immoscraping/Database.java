@@ -22,10 +22,13 @@ public class Database implements Serializable {
 
 	private static final long serialVersionUID = -7749365650227300460L;
 	private static final long MONTH = 60l * 60l * 24l * 30l * 1000l;
-	protected Vector<Ad> ads = new Vector<>();
+	public Vector<Ad> ads = new Vector<>();
 	protected Vector<double[]> latLongList = new Vector<>();
 	protected Vector<Double> travelDistanceList = new Vector<>();
-	Date lastUpdate = new Date(0);
+	public Date lastLbcAdDate;
+	public Date lastPapAdDate;
+	public Date lastParuVenduAdDate;
+	private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/YY HH:mm");
 
 	public Database() {
 	}
@@ -36,28 +39,39 @@ public class Database implements Serializable {
 	 * @param ad
 	 */
 	public void add(Ad ad) {
+		String adQuickDesc = String.format("%s - %s", sdf.format(ad.lastPubDate), ad.url);
+		String comment = "";
 		for (int i = 0; i < ads.size(); i++) {
 			Ad adi = ads.get(i);
-			if (ad.url.equals(adi.url) || (!ad.description.isEmpty() && ad.description.contentEquals(adi.description))
-					|| (ad.isPro == adi.isPro && ad.price == adi.price && ad.latLon == adi.latLon
-							&& ad.surface == adi.surface && ad.rooms == adi.rooms
-							&& ad.energyGrade == adi.energyGrade)) {
-				adi.lastPubDate = ad.lastPubDate;
+			boolean sameUrl = ad.url.equals(adi.url);
+			boolean sameDescription = (!ad.description.isEmpty() && ad.description.contentEquals(adi.description));
+			if (sameUrl || sameDescription) {
+				ad.firstPubDate = adi.firstPubDate;
+				ad.discoverDate = adi.discoverDate;
+				ads.set(i, ad); // Update ad
+
+				// Output quick description
+				if (sameDescription && !sameUrl) {
+					comment = String.format(" (Old URL : %s)", adi.url);
+				}
+				System.out.format("   Upd ad : %s%s\n", adQuickDesc, comment);
+
 				return;
 			}
 		}
+
+		// Update last
+		System.out.format("NEW AD : %s%s\n", adQuickDesc, comment);
 		ads.add(ad);
 	}
 
-	public void process(Date lastUpdate) throws IOException {
-		// Update last update date
-		this.lastUpdate = lastUpdate;
+	public void process() throws IOException {
 
 		Iterator<Ad> adIt = ads.iterator();
 		while (adIt.hasNext()) {
 
 			Ad ad = adIt.next();
-			if (lastUpdate.getTime() - ad.lastPubDate.getTime() > 2 * MONTH) {
+			if ((new Date()).getTime() - ad.lastPubDate.getTime() > 2 * MONTH) {
 				adIt.remove();
 				continue;
 			}
@@ -163,6 +177,8 @@ public class Database implements Serializable {
 		writer.print(";");
 		writer.print("firstPubDate");
 		writer.print(";");
+		writer.print("discoverDate");
+		writer.print(";");
 		writer.print("isPro");
 		writer.print(";");
 		writer.print("travelTime");
@@ -213,6 +229,8 @@ public class Database implements Serializable {
 			writer.print(";");
 			writer.print(sdf.format(ad.firstPubDate));
 			writer.print(";");
+			writer.print(sdf.format(ad.discoverDate));
+			writer.print(";");
 			writer.print(ad.isPro);
 			writer.print(";");
 			writer.print(ad.travelTime);
@@ -236,6 +254,6 @@ public class Database implements Serializable {
 	public void refresh() throws IOException {
 		travelDistanceList.clear();
 		latLongList.clear();
-		this.process(this.lastUpdate);
+		this.process();
 	}
 }
