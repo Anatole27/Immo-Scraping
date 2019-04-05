@@ -1,0 +1,1 @@
+java -jar ../bin/immoscraping/immo-scraping.jar scrape --email anatole.verhaegen@gmail.com --loop 2>&1 | ts '[%Y-%m-%d %H:%M:%S]' | tee -a log.txt
