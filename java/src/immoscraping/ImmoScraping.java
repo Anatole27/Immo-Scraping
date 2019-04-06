@@ -200,6 +200,8 @@ public class ImmoScraping {
 
 		do {
 			if (isTimeToScrape()) {
+				// Scrap start date
+				Date scrapeStartDate = new Date();
 
 				// Load database from the autosave
 				loadDatabase();
@@ -207,7 +209,6 @@ public class ImmoScraping {
 				// Init scrapers
 				webScrapers.clear();
 				if (isLoop) {
-					sinceDate = new Date();
 					webScrapers.add(new LbcScraper(database, database.lastLbcAdDate));
 					webScrapers.add(new PapScraper(database, database.lastPapAdDate));
 					webScrapers.add(new ParuVenduScraper(database, database.lastParuVenduAdDate));
@@ -239,7 +240,7 @@ public class ImmoScraping {
 
 				// Notify me by email
 				if (!mail.equals("")) {
-					notifier.notify(sinceDate, mail, database);
+					notifier.notify(scrapeStartDate, mail, database);
 				}
 			}
 			Thread.sleep(1000);

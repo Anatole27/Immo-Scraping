@@ -28,10 +28,14 @@ public class Notifier {
 
 		int[] iAd = new int[1];
 		for (Ad ad : database.ads) {
-			if (ad.discoverDate.after(sinceDate)) {
+			if (!ad.discoverDate.before(sinceDate)) {
 				iAd[0]++;
 			}
 		}
+
+		System.out.format("\n%d new ads discovered between %s and %s.\n", iAd[0], sdfEng.format(sinceDate),
+				sdfEng.format(new Date()));
+
 		body += String.format("Ces annonces pourraient vous intéresser :\n");
 		iAd[0] = 0;
 
@@ -66,8 +70,6 @@ public class Notifier {
 //
 //		// All others
 //		body += selectAllAds(sinceDate, database);
-		System.out.format("\n%d new ads between %s and %s.\n", iAd[0], sdfEng.format(sinceDate),
-				sdfEng.format(new Date()));
 
 		if (iAd[0] > 0) {
 			System.out.println("____________________________________________________________________\n");
@@ -86,7 +88,7 @@ public class Notifier {
 				"(Prix < %de, surface > %dm2, type : %s, taf a moins de %d minutes, NRJ >= %s, GES >= %s, freq = %d\n)",
 				(int) price, (int) surface, type, (int) (travelTime / 60), energy, ges, freq);
 		for (Ad ad : database.ads) {
-			if (ad.discoverDate.after(lastUpdateDate)) {
+			if (!ad.discoverDate.before(lastUpdateDate)) {
 				if (ad.price <= price && ad.surface >= surface && ad.type.compareTo(type) == 0
 						&& ad.travelTime <= travelTime && ad.energyGrade <= energy && ad.gesGrade <= ges
 						&& ad.latLonFreq <= freq) {
