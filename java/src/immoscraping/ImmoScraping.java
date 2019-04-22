@@ -209,9 +209,10 @@ public class ImmoScraping {
 				// Init scrapers
 				webScrapers.clear();
 				if (isLoop) {
-					webScrapers.add(new LbcScraper(database, database.lastLbcAdDate));
-					webScrapers.add(new PapScraper(database, database.lastPapAdDate));
-					webScrapers.add(new ParuVenduScraper(database, database.lastParuVenduAdDate));
+
+					webScrapers.add(new LbcScraper(database, aBitBefore(database.lastLbcAdDate)));
+					webScrapers.add(new PapScraper(database, aBitBefore(database.lastPapAdDate)));
+					webScrapers.add(new ParuVenduScraper(database, aBitBefore(database.lastParuVenduAdDate)));
 				} else {
 					webScrapers.add(new LbcScraper(database, sinceDate));
 					webScrapers.add(new PapScraper(database, sinceDate));
@@ -245,6 +246,14 @@ public class ImmoScraping {
 			}
 			Thread.sleep(1000);
 		} while (isLoop);
+	}
+
+	private static final long A_BIT_BEFORE = 1000l * 60l * 60l * 5l; // 3h
+
+	private Date aBitBefore(Date lastLbcAdDate) {
+		long time = lastLbcAdDate.getTime() - A_BIT_BEFORE;
+		Date newDate = new Date(time);
+		return newDate;
 	}
 
 	Random rand = new Random(0);

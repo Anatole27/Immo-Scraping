@@ -1,2 +1,2 @@
 #!/bin/bash
-java -jar $(dirname "$0")/../bin/immoscraping/immo-scraping.jar scrape --email anatole.verhaegen@gmail.com --since 06-04-2019_00:00 2>&1 | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(dirname "$0")/log.txt
+java -jar $(dirname "$0")/../bin/immoscraping/immo-scraping.jar scrape --email anatole.verhaegen@gmail.com --since 18-04-2019_20:00 2>&1 | ts '[%Y-%m-%d %H:%M:%S]' | tee -a $(dirname "$0")/log.txt

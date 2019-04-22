@@ -10,7 +10,7 @@ import immoscraping.Database;
 public class LbcScraper extends WebScraper {
 
 	private static final String DOMAIN = "https://www.leboncoin.fr";
-	private static final String BASE_SEARCH_URL = "https://www.leboncoin.fr/recherche/?category=9&locations=Toulouse_31400,Toulouse_31500&real_estate_type=2,1&page=";
+	private static final String BASE_SEARCH_URL = "https://www.leboncoin.fr/recherche/?category=9&locations=Toulouse_31400,Toulouse_31500&real_estate_type=1&price=300000-500000&square=90-200&page=";
 	private static final String AD_HREF_REGEX = "(?<=clearfix trackable\" rel=\"nofollow\" href=\")/ventes_immobilieres/[0-9]*.htm/";
 	private static final String ENERGY_GRADE_REGEX = "(?<=\"key_label\":\"Classe énergie\",\"value_label\":\")[A-Z]";
 	private static final String GES_REGEX = "(?<=\"key_label\":\"GES\",\"value_label\":\")[A-Z]";
