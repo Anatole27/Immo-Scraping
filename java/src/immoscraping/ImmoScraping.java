@@ -248,7 +248,7 @@ public class ImmoScraping {
 		} while (isLoop);
 	}
 
-	private static final long A_BIT_BEFORE = 1000l * 60l * 60l * 5l; // 3h
+	private static final long A_BIT_BEFORE = 1000l * 60l * 60l * 24l; // 24h
 
 	private Date aBitBefore(Date lastLbcAdDate) {
 		long time = lastLbcAdDate.getTime() - A_BIT_BEFORE;

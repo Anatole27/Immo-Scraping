@@ -10,7 +10,7 @@ import immoscraping.Database;
 public class ParuVenduScraper extends WebScraper {
 
 	private static final String DOMAIN = "https://www.paruvendu.fr";
-	private static final String BASE_SEARCH_URL = "https://www.paruvendu.fr/immobilier/annonceimmofo/liste/listeAnnonces?nbp=0&tt=1&tbApp=1&tbDup=1&tbChb=1&tbLof=1&tbAtl=1&tbPla=1&tbMai=1&tbVil=1&tbCha=1&tbPro=1&tbHot=1&tbMou=1&tbFer=1&at=1&nbp0=99&ddlFiltres=nofilter&codeINSEE=PA056,PA055,,&p=";
+	private static final String BASE_SEARCH_URL = "https://www.paruvendu.fr/immobilier/annonceimmofo/liste/listeAnnonces?nbp=0&tt=1&tbApp=1&tbDup=1&tbChb=1&tbLof=1&tbAtl=1&tbPla=1&tbMai=1&tbVil=1&tbCha=1&tbPro=1&tbHot=1&tbMou=1&tbFer=1&at=1&nbp0=99&sur0=90&sur1=200&px0=300000&px1=500000&pa=FR&ddlFiltres=nofilter&codeINSEE=PA055,PA056,,&p=";
 	private static final String AD_HREF_REGEX = "(?<=<a class=\"voirann\" href=\")\\/immobilier\\/.*(?=\" title)";
 	private static final String ENERGY_GRADE_REGEX = "(?<=communfo/img/DPE/ce_)[a-z](?=\\.png)";
 	private static final String GES_REGEX = "(?<=communfo\\/img\\/DPE\\/ges_)[a-z](?=\\.png)";
